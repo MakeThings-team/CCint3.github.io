@@ -33,6 +33,7 @@ jobs:
         env:
           HEXO_DEPLOY_PRIVATE_KEY: ${{ secrets.my_key }}
         run: |
+          echo $(pwd)
           echo "$HEXO_DEPLOY_PRIVATE_KEY"
           mkdir -p ~/.ssh/
           echo "$HEXO_DEPLOY_PRIVATE_KEY" > ~/.ssh/id_rsa 
