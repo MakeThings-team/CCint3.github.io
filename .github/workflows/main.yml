@@ -46,6 +46,7 @@ jobs:
         git config --global user.email ''
     - name: Deploy Hexo 
       run: |
+        cd ..
         hexo clean
         hexo generate 
         hexo deploy
