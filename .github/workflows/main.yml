@@ -25,6 +25,7 @@ jobs:
     
     - name: Setup Hexo Dependencies
       run: |
+        echo $(pwd) 
         npm install hexo-cli -g
         npm install
     
