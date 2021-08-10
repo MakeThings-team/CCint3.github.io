@@ -18,11 +18,11 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '12'
-      - run: npm install
-      - run: npm test 
+      - run: npm install hexo-cli -g
 
       - name: Check Binary
         run: |
           echo $(pwd)
           echo $(which npm)
           echo $(which node)
+          echo $(which hexo)
