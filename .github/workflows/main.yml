@@ -31,8 +31,9 @@ jobs:
     
       - name: Setup Deploy Private Key
         env:
-          HEXO_DEPLOY_PRIVATE_KEY: ${{ secrets.HEXO_DEPLOY_PRIVATE_KEY }}
+          HEXO_DEPLOY_PRIVATE_KEY: ${{ secrets.my_key }}
         run: |
+          echo "$HEXO_DEPLOY_PRIVATE_KEY"
           mkdir -p ~/.ssh/
           echo "$HEXO_DEPLOY_PRIVATE_KEY" > ~/.ssh/id_rsa 
           chmod 600 ~/.ssh/id_rsa
