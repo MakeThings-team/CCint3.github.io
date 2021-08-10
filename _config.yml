@@ -5,7 +5,7 @@
 # Site
 title: MakeThings Team'Blog
 subtitle: ''
-description: '皇上吃大饼一定是两面都蘸酱的吧？'
+description: '皇上吃大饼，两面都蘸酱。'
 keywords: asm, C/C++, C++, android, windows
 author: MakeThings Team
 language: zh-CN
@@ -13,7 +13,7 @@ timezone: 'Asia/Shanghai'
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://yoursite.com
+url: http://ccint3.com
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -93,7 +93,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: hexo-theme-next-8.0.1
+theme: hexo-theme-next
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
