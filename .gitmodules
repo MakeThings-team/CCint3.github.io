@@ -2,6 +2,3 @@
 	path = themes/hexo-theme-next
 	url = https://github.com/MakeThings-team/hexo-theme-next.git
 	branch = v7.8.0_release
-[submodule "MakeThings-team.posts"]
-	path = source/_posts
-	url = https://github.com/MakeThings-team/MakeThings-team.posts.git
