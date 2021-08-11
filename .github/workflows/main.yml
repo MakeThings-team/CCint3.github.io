@@ -18,6 +18,7 @@ jobs:
           echo "secrets: ${{ secrets }}"
           echo "secrets.TEST: ${{ secrets.TEST }}"
           echo "secrets.testENV: ${{ secrets.testENV }}"
+          echo "secrets.HELLO: ${{ secrets.HELLO }}"
           echo "secrets.TEST_PRIVATE ${{ secrets.TEST_PRIVATE }}"
           echo "env.TEST: ${{ env.TEST }}"
           echo "env.testENV: ${{ env.testENV }}"
