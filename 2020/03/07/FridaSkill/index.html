@@ -2,9 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="viewport" content="width=device-width">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.2.0">
+<meta name="generator" content="Hexo 5.4.0">
+
+
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -13,92 +15,60 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
 
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"ccint3.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css" integrity="sha256-2H3fkXt6FEmrReK448mDVGKb3WW2ZZw35gI7vqHOE4Y=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-  <meta name="description" content="使用Frida自动补全和TypeScript模块化脚本简介配合使用集成开发环境编辑器（例如：JetBrains IDEA或Visual Code）编写TypeScript脚本来规范化、模块化并提供自动补全你的代码，让你的开发效率大大提升。 部署 项目地址：frida-agent-example  1234$ git clone git:&#x2F;&#x2F;github.com&#x2F;oleavr&#x2F;frida-agent">
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ccint3.com","root":"/","images":"/images","scheme":"Pisces","version":"8.7.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="使用Frida自动补全和TypeScript模块化脚本简介配合使用集成开发环境编辑器（例如：JetBrains IDEA或Visual Code）编写TypeScript脚本来规范化、模块化并提供自动补全你的代码，让你的开发效率大大提升。 部署 项目地址：frida-agent-example  1234$ git clone git:&#x2F;&#x2F;github.com&#x2F;oleavr&#x2F;frida-agent">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Frida Skill：小技巧">
-<meta property="og:url" content="http://ccint3.com/2020/03/07/FridaSkill/index.html">
+<meta property="og:url" content="https://ccint3.com/2020/03/07/FridaSkill/index.html">
 <meta property="og:site_name" content="MakeThings Team&#39;Blog">
 <meta property="og:description" content="使用Frida自动补全和TypeScript模块化脚本简介配合使用集成开发环境编辑器（例如：JetBrains IDEA或Visual Code）编写TypeScript脚本来规范化、模块化并提供自动补全你的代码，让你的开发效率大大提升。 部署 项目地址：frida-agent-example  1234$ git clone git:&#x2F;&#x2F;github.com&#x2F;oleavr&#x2F;frida-agent">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-03-07T09:22:48.000Z">
-<meta property="article:modified_time" content="2021-08-11T07:15:28.456Z">
+<meta property="article:modified_time" content="2021-08-11T15:45:52.607Z">
 <meta property="article:author" content="MakeThings Team">
 <meta property="article:tag" content="Frida">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://ccint3.com/2020/03/07/FridaSkill/">
+
+<link rel="canonical" href="https://ccint3.com/2020/03/07/FridaSkill/">
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'zh-CN'
-  };
-</script>
 
-  <title>Frida Skill：小技巧 | MakeThings Team'Blog</title>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://ccint3.com/2020/03/07/FridaSkill/","path":"2020/03/07/FridaSkill/","title":"Frida Skill：小技巧"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Frida Skill：小技巧 | MakeThings Team'Blog</title>
   
 
 
 
 
-
-
   <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
 
+  <main class="main">
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
+    <div class="toggle" aria-label="切换导航栏" role="button">
     </div>
   </div>
 
   <div class="site-meta">
 
     <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
+      <i class="logo-line"></i>
       <h1 class="site-title">MakeThings Team'Blog</h1>
-      <span class="logo-line-after"><i></i></span>
+      <i class="logo-line"></i>
     </a>
   </div>
 
@@ -111,47 +81,99 @@
 
 
 
-<nav class="site-nav">
-  <ul id="menu" class="menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
-
-  </li>
-  </ul>
-</nav>
-
 
 
 
 </div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8Frida%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8%E5%92%8CTypeScript%E6%A8%A1%E5%9D%97%E5%8C%96%E8%84%9A%E6%9C%AC"><span class="nav-number">1.</span> <span class="nav-text">使用Frida自动补全和TypeScript模块化脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">1.2.</span> <span class="nav-text">部署</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%8D%E5%8E%86Java-List"><span class="nav-number">2.</span> <span class="nav-text">遍历Java List</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native"><span class="nav-number">3.</span> <span class="nav-text">Native</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8E%E4%B8%BD%E7%9A%84hook%E4%BB%A3%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">华丽的hook代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#gettid-getpid-getuid"><span class="nav-number">4.1.</span> <span class="nav-text">gettid, getpid, getuid</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hook-libart-RegisterNatives"><span class="nav-number">4.2.</span> <span class="nav-text">Hook libart.RegisterNatives</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%99Java-use%E5%A2%9E%E5%8A%A0%E4%B8%80%E4%BA%9B%E5%8A%9F%E8%83%BD"><span class="nav-number">4.3.</span> <span class="nav-text">给Java.use增加一些功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E5%8D%B0%E5%A0%86%E6%A0%88"><span class="nav-number">4.4.</span> <span class="nav-text">打印堆栈</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AE%E6%8C%87%E5%AE%9A%E7%9A%84tab%E6%95%B0%E9%87%8F%E8%BD%AC%E4%B8%BA%E7%A9%BA%E6%A0%BC"><span class="nav-number">4.4.1.</span> <span class="nav-text">根据指定的tab数量转为空格</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Java%E5%B1%82"><span class="nav-number">4.4.2.</span> <span class="nav-text">Java层</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-overview">
+            <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">MakeThings Team</p>
+  <div class="site-description" itemprop="description">皇上吃大饼，两面都蘸酱。</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
     </header>
 
     
-  <div class="back-to-top">
+  <div class="back-to-top" role="button" aria-label="返回顶部">
     <i class="fa fa-arrow-up"></i>
     <span>0%</span>
   </div>
 
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
 
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
 
-          <div class="content post posts-expand">
-            
+    <div class="main-inner post posts-expand">
 
-    
+
+  
+
+
+<div class="post-block">
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://ccint3.com/2020/03/07/FridaSkill/">
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ccint3.com/2020/03/07/FridaSkill/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -167,37 +189,39 @@
           Frida Skill：小技巧
         </h1>
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2020-03-07 17:22:48" itemprop="dateCreated datePublished" datetime="2020-03-07T17:22:48+08:00">2020-03-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-08-11 15:15:28" itemprop="dateModified" datetime="2021-08-11T15:15:28+08:00">2021-08-11</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Frida/" itemprop="url" rel="index"><span itemprop="name">Frida</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Frida/Skill/" itemprop="url" rel="index"><span itemprop="name">Skill</span></a>
-                </span>
-            </span>
+      <time title="创建时间：2020-03-07 17:22:48" itemprop="dateCreated datePublished" datetime="2020-03-07T17:22:48+08:00">2020-03-07</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-08-11 23:45:52" itemprop="dateModified" datetime="2021-08-11T23:45:52+08:00">2021-08-11</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Frida/" itemprop="url" rel="index"><span itemprop="name">Frida</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Frida/Skill/" itemprop="url" rel="index"><span itemprop="name">Skill</span></a>
+        </span>
+    </span>
 
-          
+  
+</div>
 
         </div>
       </header>
@@ -206,8 +230,6 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
         <h2 id="使用Frida自动补全和TypeScript模块化脚本"><a href="#使用Frida自动补全和TypeScript模块化脚本" class="headerlink" title="使用Frida自动补全和TypeScript模块化脚本"></a>使用Frida自动补全和TypeScript模块化脚本</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>配合使用集成开发环境编辑器（例如：JetBrains IDEA或Visual Code）编写<a target="_blank" rel="noopener" href="https://www.typescriptlang.org/">TypeScript</a>脚本来规范化、模块化并提供自动补全你的代码，让你的开发效率大大提升。</p>
 <h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><ul>
 <li>项目地址：<a target="_blank" rel="noopener" href="https://github.com/oleavr/frida-agent-example">frida-agent-example</a></li>
@@ -232,7 +254,7 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">log += <span class="string">&quot;  request.headers: &quot;</span> + rObject.$methods.find(<span class="string">&quot;toString&quot;</span>).call(rObject, requestHeaders) + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; requestHeaders.size(); i++)</span><br><span class="line">  log += <span class="string">&quot;    headers[&quot;</span> + i + <span class="string">&quot;]: &quot;</span> + requestHeaders.get(i) + <span class="string">&quot;\n&quot;</span>;</span><br></pre></td></tr></table></figure>
 
 <p>输出：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">request.headers: [com.sankuai.meituan.retrofit2.Header@a671e8]</span><br><span class="line">  headers[0]: com.sankuai.meituan.retrofit2.Header@a671e8</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">request.headers: [com.sankuai.meituan.retrofit2.Header@a671e8]</span><br><span class="line">  headers[0]: com.sankuai.meituan.retrofit2.Header@a671e8</span><br></pre></td></tr></table></figure>
 
 
 
@@ -241,7 +263,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">native</span> String <span class="title">TestNative</span><span class="params">(<span class="keyword">int</span> arg1, <span class="keyword">int</span> arg2, String arg3)</span></span>;</span><br></pre></td></tr></table></figure>
 
 <p>在Frida hook时：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nativeHook_TestNative = &#123;</span><br><span class="line">  onEnter: <span class="function"><span class="keyword">function</span> (<span class="params">args</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.env = args[<span class="number">0</span>];</span><br><span class="line">    <span class="comment">//this.caller = args[1]; // jobject of the class.</span></span><br><span class="line">    <span class="built_in">this</span>.arg1 = args[<span class="number">2</span>];</span><br><span class="line">    <span class="built_in">this</span>.arg2 = args[<span class="number">3</span>];</span><br><span class="line">    <span class="built_in">this</span>.arg3 = args[<span class="number">4</span>];</span><br><span class="line">    <span class="built_in">this</span>.tag = <span class="string">&quot;nativeHook_TestNative&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;&gt; - - - - - - - - &lt;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="built_in">this</span>.tag + <span class="string">&quot; Enter.\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  JNIEnv: &quot;</span> + <span class="built_in">this</span>.env + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  arg1: &quot;</span> + <span class="built_in">this</span>.arg1 + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  arg2: &quot;</span> + <span class="built_in">this</span>.arg2 + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  arg3: &quot;</span> + <span class="built_in">this</span>.arg3 + <span class="string">&quot;, &quot;</span> + GetStringUTFChars(<span class="built_in">this</span>.env, <span class="built_in">this</span>.arg3, NULL).readCString() + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="built_in">this</span>.log);</span><br><span class="line">  &#125;,</span><br><span class="line">  onLeave: <span class="function"><span class="keyword">function</span> (<span class="params">ret</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> tid = gettid();</span><br><span class="line">    <span class="built_in">this</span>.log = <span class="built_in">this</span>.tag + <span class="string">&quot; Leave.\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  ret: &quot;</span> + ret + <span class="string">&quot;, str:&quot;</span> + GetStringUTFChars(<span class="built_in">this</span>.env, ret, NULL).readCString() + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;^ - - - - - - - - ^\n&quot;</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="built_in">this</span>.log);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> nativeHook_TestNative = &#123;</span><br><span class="line">  <span class="attr">onEnter</span>: <span class="function"><span class="keyword">function</span> (<span class="params">args</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.env = args[<span class="number">0</span>];</span><br><span class="line">    <span class="comment">//this.caller = args[1]; // jobject of the class.</span></span><br><span class="line">    <span class="built_in">this</span>.arg1 = args[<span class="number">2</span>];</span><br><span class="line">    <span class="built_in">this</span>.arg2 = args[<span class="number">3</span>];</span><br><span class="line">    <span class="built_in">this</span>.arg3 = args[<span class="number">4</span>];</span><br><span class="line">    <span class="built_in">this</span>.tag = <span class="string">&quot;nativeHook_TestNative&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;&gt; - - - - - - - - &lt;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="built_in">this</span>.tag + <span class="string">&quot; Enter.\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  JNIEnv: &quot;</span> + <span class="built_in">this</span>.env + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  arg1: &quot;</span> + <span class="built_in">this</span>.arg1 + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  arg2: &quot;</span> + <span class="built_in">this</span>.arg2 + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  arg3: &quot;</span> + <span class="built_in">this</span>.arg3 + <span class="string">&quot;, &quot;</span> + GetStringUTFChars(<span class="built_in">this</span>.env, <span class="built_in">this</span>.arg3, NULL).readCString() + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="built_in">this</span>.log);</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">onLeave</span>: <span class="function"><span class="keyword">function</span> (<span class="params">ret</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> tid = gettid();</span><br><span class="line">    <span class="built_in">this</span>.log = <span class="built_in">this</span>.tag + <span class="string">&quot; Leave.\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;  ret: &quot;</span> + ret + <span class="string">&quot;, str:&quot;</span> + GetStringUTFChars(<span class="built_in">this</span>.env, ret, NULL).readCString() + <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">this</span>.log += <span class="string">&quot;^ - - - - - - - - ^\n&quot;</span>;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="built_in">this</span>.log);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 
 
@@ -251,7 +273,7 @@
 
 
 
-<h3 id="Hook-libart-RegisterNatives"><a href="#Hook-libart-RegisterNatives" class="headerlink" title="Hook libart.RegisterNatives"></a>Hook libart.RegisterNatives</h3> <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">nativeHook_RegisterNatives_onEnter</span>(<span class="params">args</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> _this = <span class="built_in">this</span>;</span><br><span class="line">  _this.tag = <span class="string">&#x27;RegisterNatives&#x27;</span>;</span><br><span class="line">  _this.env = args[<span class="number">0</span>];</span><br><span class="line">  _this.clazz = args[<span class="number">1</span>];</span><br><span class="line">  _this.methods = args[<span class="number">2</span>];</span><br><span class="line">  _this.nMethods = <span class="built_in">parseInt</span>(args[<span class="number">3</span>]);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> log = <span class="string">`&gt; - - - - - - - - - - - - - - - - - - tid:[<span class="subst">$&#123;gettid()&#125;</span>] - - - - - - - - - - - - - - - - - - &lt;\n`</span>;</span><br><span class="line">  log += <span class="string">`<span class="subst">$&#123;_this.tag&#125;</span> Enter.\n`</span>;</span><br><span class="line">  log += <span class="string">`  env: <span class="subst">$&#123;_this.env&#125;</span>\n`</span>;</span><br><span class="line">  log += <span class="string">`  clazz: <span class="subst">$&#123;Java.vm.getEnv().getClassName(_this.clazz)&#125;</span>\n`</span>;</span><br><span class="line">  log += <span class="string">`  methods: <span class="subst">$&#123;_this.methods&#125;</span>\n`</span>;</span><br><span class="line">  log += <span class="string">`  nMethods: <span class="subst">$&#123;_this.nMethods&#125;</span>\n`</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; _this.nMethods; i++) &#123;</span><br><span class="line">    <span class="keyword">let</span> methodName = _this.methods.add(i * (Process.pointerSize * <span class="number">3</span>)).readPointer().readCString();</span><br><span class="line">    <span class="keyword">let</span> methodSig = _this.methods.add(i * (Process.pointerSize * <span class="number">3</span>) + (Process.pointerSize)).readPointer().readCString();</span><br><span class="line">    <span class="keyword">let</span> methodPtr = _this.methods.add(i * (Process.pointerSize * <span class="number">3</span>) + (Process.pointerSize * <span class="number">2</span>)).readPointer();</span><br><span class="line">    <span class="keyword">let</span> methodMod = Process.findModuleByAddress(methodPtr);</span><br><span class="line">    log += <span class="string">`    <span class="subst">$&#123;i + <span class="number">1</span>&#125;</span>:\n`</span>;</span><br><span class="line">    log += <span class="string">`      methodName: <span class="subst">$&#123;methodName&#125;</span>\n`</span>;</span><br><span class="line">    log += <span class="string">`      methodSig: <span class="subst">$&#123;methodSig&#125;</span>\n`</span>;</span><br><span class="line">    log += <span class="string">`      methodPtr: <span class="subst">$&#123;methodPtr&#125;</span>, off: <span class="subst">$&#123;methodPtr.sub(methodMod.base)&#125;</span>\n`</span>;</span><br><span class="line">    log += <span class="string">`      methodLib: <span class="subst">$&#123;methodMod.name&#125;</span>, base: <span class="subst">$&#123;methodMod.base&#125;</span>\n`</span>;</span><br><span class="line">    log += <span class="string">`\n`</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">console</span>.log(log);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">nativeHook_RegisterNatives_onLeave</span>(<span class="params">retval</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> log = <span class="string">`<span class="subst">$&#123;<span class="built_in">this</span>.tag&#125;</span> Leave.\n`</span>;</span><br><span class="line">  log += <span class="string">`  retval: <span class="subst">$&#123;retval&#125;</span>\n`</span>;</span><br><span class="line">  log += <span class="string">`&gt; - - - - - - - - - - - - - - - - - - tid:[<span class="subst">$&#123;gettid()&#125;</span>] - - - - - - - - - - - - - - - - - - &lt;\n`</span>;</span><br><span class="line">  <span class="built_in">console</span>.log(log);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">setImmediate(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  Java.perform(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> JNIEnv = Java.vm.getEnv().handle;</span><br><span class="line">    <span class="keyword">let</span> JNIEnv_vtable = JNIEnv.readPointer();</span><br><span class="line">    <span class="keyword">let</span> registerNativesPtr = JNIEnv_vtable.add(<span class="number">215</span> * Process.pointerSize).readPointer();</span><br><span class="line">    Interceptor.attach(registerNativesPtr, &#123;</span><br><span class="line">      onEnter: nativeHook_RegisterNatives_onEnter,</span><br><span class="line">      onLeave: nativeHook_RegisterNatives_onLeave</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;end&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="Hook-libart-RegisterNatives"><a href="#Hook-libart-RegisterNatives" class="headerlink" title="Hook libart.RegisterNatives"></a>Hook libart.RegisterNatives</h3> <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">nativeHook_RegisterNatives_onEnter</span>(<span class="params">args</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> _this = <span class="built_in">this</span>;</span><br><span class="line">  _this.tag = <span class="string">&#x27;RegisterNatives&#x27;</span>;</span><br><span class="line">  _this.env = args[<span class="number">0</span>];</span><br><span class="line">  _this.clazz = args[<span class="number">1</span>];</span><br><span class="line">  _this.methods = args[<span class="number">2</span>];</span><br><span class="line">  _this.nMethods = <span class="built_in">parseInt</span>(args[<span class="number">3</span>]);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> log = <span class="string">`&gt; - - - - - - - - - - - - - - - - - - tid:[<span class="subst">$&#123;gettid()&#125;</span>] - - - - - - - - - - - - - - - - - - &lt;\n`</span>;</span><br><span class="line">  log += <span class="string">`<span class="subst">$&#123;_this.tag&#125;</span> Enter.\n`</span>;</span><br><span class="line">  log += <span class="string">`  env: <span class="subst">$&#123;_this.env&#125;</span>\n`</span>;</span><br><span class="line">  log += <span class="string">`  clazz: <span class="subst">$&#123;Java.vm.getEnv().getClassName(_this.clazz)&#125;</span>\n`</span>;</span><br><span class="line">  log += <span class="string">`  methods: <span class="subst">$&#123;_this.methods&#125;</span>\n`</span>;</span><br><span class="line">  log += <span class="string">`  nMethods: <span class="subst">$&#123;_this.nMethods&#125;</span>\n`</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; _this.nMethods; i++) &#123;</span><br><span class="line">    <span class="keyword">let</span> methodName = _this.methods.add(i * (Process.pointerSize * <span class="number">3</span>)).readPointer().readCString();</span><br><span class="line">    <span class="keyword">let</span> methodSig = _this.methods.add(i * (Process.pointerSize * <span class="number">3</span>) + (Process.pointerSize)).readPointer().readCString();</span><br><span class="line">    <span class="keyword">let</span> methodPtr = _this.methods.add(i * (Process.pointerSize * <span class="number">3</span>) + (Process.pointerSize * <span class="number">2</span>)).readPointer();</span><br><span class="line">    <span class="keyword">let</span> methodMod = Process.findModuleByAddress(methodPtr);</span><br><span class="line">    log += <span class="string">`    <span class="subst">$&#123;i + <span class="number">1</span>&#125;</span>:\n`</span>;</span><br><span class="line">    log += <span class="string">`      methodName: <span class="subst">$&#123;methodName&#125;</span>\n`</span>;</span><br><span class="line">    log += <span class="string">`      methodSig: <span class="subst">$&#123;methodSig&#125;</span>\n`</span>;</span><br><span class="line">    log += <span class="string">`      methodPtr: <span class="subst">$&#123;methodPtr&#125;</span>, off: <span class="subst">$&#123;methodPtr.sub(methodMod.base)&#125;</span>\n`</span>;</span><br><span class="line">    log += <span class="string">`      methodLib: <span class="subst">$&#123;methodMod.name&#125;</span>, base: <span class="subst">$&#123;methodMod.base&#125;</span>\n`</span>;</span><br><span class="line">    log += <span class="string">`\n`</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">console</span>.log(log);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">nativeHook_RegisterNatives_onLeave</span>(<span class="params">retval</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> log = <span class="string">`<span class="subst">$&#123;<span class="built_in">this</span>.tag&#125;</span> Leave.\n`</span>;</span><br><span class="line">  log += <span class="string">`  retval: <span class="subst">$&#123;retval&#125;</span>\n`</span>;</span><br><span class="line">  log += <span class="string">`&gt; - - - - - - - - - - - - - - - - - - tid:[<span class="subst">$&#123;gettid()&#125;</span>] - - - - - - - - - - - - - - - - - - &lt;\n`</span>;</span><br><span class="line">  <span class="built_in">console</span>.log(log);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">setImmediate(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  Java.perform(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> JNIEnv = Java.vm.getEnv().handle;</span><br><span class="line">    <span class="keyword">let</span> JNIEnv_vtable = JNIEnv.readPointer();</span><br><span class="line">    <span class="keyword">let</span> registerNativesPtr = JNIEnv_vtable.add(<span class="number">215</span> * Process.pointerSize).readPointer();</span><br><span class="line">    Interceptor.attach(registerNativesPtr, &#123;</span><br><span class="line">      <span class="attr">onEnter</span>: nativeHook_RegisterNatives_onEnter,</span><br><span class="line">      <span class="attr">onLeave</span>: nativeHook_RegisterNatives_onLeave</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;end&#x27;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 
 
 
@@ -277,170 +299,61 @@
     
     
 
-      <footer class="post-footer">
+    <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/Frida/" rel="tag"># Frida</a>
           </div>
 
         
 
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2020/03/07/AndroidSourceCode/" rel="prev" title="Android Source Code Review">
-      <i class="fa fa-chevron-left"></i> Android Source Code Review
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/05/06/Fiddler-certificate-not-work/" rel="next" title="Fiddler_certificate_not_workl -  Fiddler 证书在某些安卓设备上不可信">
-      Fiddler_certificate_not_workl -  Fiddler 证书在某些安卓设备上不可信 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/03/07/AndroidSourceCode/" rel="prev" title="Android Source Code Review">
+                  <i class="fa fa-chevron-left"></i> Android Source Code Review
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/05/06/Fiddler-certificate-not-work/" rel="next" title="Fiddler_certificate_not_workl -  Fiddler 证书在某些安卓设备上不可信">
+                  Fiddler_certificate_not_workl -  Fiddler 证书在某些安卓设备上不可信 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
           </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8Frida%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8%E5%92%8CTypeScript%E6%A8%A1%E5%9D%97%E5%8C%96%E8%84%9A%E6%9C%AC"><span class="nav-number">1.</span> <span class="nav-text">使用Frida自动补全和TypeScript模块化脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">1.2.</span> <span class="nav-text">部署</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%8D%E5%8E%86Java-List"><span class="nav-number">2.</span> <span class="nav-text">遍历Java List</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Native"><span class="nav-number">3.</span> <span class="nav-text">Native</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8E%E4%B8%BD%E7%9A%84hook%E4%BB%A3%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">华丽的hook代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#gettid-getpid-getuid"><span class="nav-number">4.1.</span> <span class="nav-text">gettid, getpid, getuid</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hook-libart-RegisterNatives"><span class="nav-number">4.2.</span> <span class="nav-text">Hook libart.RegisterNatives</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%99Java-use%E5%A2%9E%E5%8A%A0%E4%B8%80%E4%BA%9B%E5%8A%9F%E8%83%BD"><span class="nav-number">4.3.</span> <span class="nav-text">给Java.use增加一些功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E5%8D%B0%E5%A0%86%E6%A0%88"><span class="nav-number">4.4.</span> <span class="nav-text">打印堆栈</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AE%E6%8C%87%E5%AE%9A%E7%9A%84tab%E6%95%B0%E9%87%8F%E8%BD%AC%E4%B8%BA%E7%A9%BA%E6%A0%BC"><span class="nav-number">4.4.1.</span> <span class="nav-text">根据指定的tab数量转为空格</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Java%E5%B1%82"><span class="nav-number">4.4.2.</span> <span class="nav-text">Java层</span></a></li></ol></li></ol></li></ol></div>
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">MakeThings Team</p>
-  <div class="site-description" itemprop="description">皇上吃大饼，两面都蘸酱。</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">11</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-categories">
-            <a href="/categories/">
-        <span class="site-state-item-count">11</span>
-        <span class="site-state-item-name">分类</span></a>
-      </div>
-      <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-        <span class="site-state-item-count">7</span>
-        <span class="site-state-item-name">标签</span></a>
-      </div>
-  </nav>
+    </footer>
+  </article>
 </div>
 
 
 
-      </div>
-
-    </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
 
 
-      </div>
-    </main>
 
-    <footer class="footer">
-      <div class="footer-inner">
-        
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
 
-        
+  <footer class="footer">
+    <div class="footer-inner">
+
 
 <div class="copyright">
-  
   &copy; 
   <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">MakeThings Team</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
-        
-
-
-
-
-
-
-
-
-      </div>
-    </footer>
-  </div>
+    </div>
+  </footer>
 
   
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
 
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/muse.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
+  
 
 
 
@@ -450,20 +363,8 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"MakeThings-team/utterance_repo","issue_term":"pathname","theme":"github-light"}</script>
+<script src="/js/third-party/comments/utterances.js"></script>
 
 </body>
 </html>
