@@ -1,32 +1,36 @@
-name: CI
+name: Pages
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
-  workflow_dispatch:
+    branches:
+      - master  # default branch
 
 jobs:
-  build:
+  pages:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check
-        env:
-          REPO_TEST: ${{ secrets.REPO_TEST }}
-        run: |
-          if [[ "$REPO_TEST" == "***" ]]; then
-            echo "- is ***"
-          fi
-          if [[ "$REPO_TEST" == "HELLO" ]]; then
-            echo "+ is HELLO"
-          fi
-          echo "REPO_TEST: $REPO_TEST"
-          echo "secrets.testENV: ${{ secrets.testENV }}"
-          echo "secrets.testENV.ENV_TEST: ${{ secrets.testENV.ENV_TEST }}"
-          echo "secrets.ORG_TEST: ${{ secrets.ORG_TEST }}"
-          echo "secrets.REPO_TEST: ${{ secrets.REPO_TEST }}"
+      - uses: actions/checkout@v2
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
 
-          echo "pwd: $(pwd)"
+      - name: Cache NPM dependencies
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-npm-cache
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.HEXO_TOKEN }}
+          publish_dir: ./public
