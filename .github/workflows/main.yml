@@ -23,7 +23,7 @@ jobs:
 
       - name: Check Binary
         run: |
-          echo $(env.github-pages)
+          echo ${{ env.NODE_VERSION }}
           echo $(pwd)
           echo $(which npm)
           echo $(which node)
