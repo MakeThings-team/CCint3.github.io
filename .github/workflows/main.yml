@@ -15,10 +15,11 @@ jobs:
     steps:
       - name: Check
         env:
-          sec: ${{ secrets.TEST_PRIVATE }}
+          REPO_TEST: ${{ secrets.REPO_TEST }}
         run: |
-          echo "sec: $sec"
-          echo "secrets.HEXO_DEPLOY_PRIVATE_KEY: ${{ secrets.HEXO_DEPLOY_PRIVATE_KEY }}"
-          echo "secrets.HELLO: ${{ secrets.HELLO }}"
-          echo "secrets.TEST_PRIVATE ${{ secrets.TEST_PRIVATE }}"
+          echo "REPO_TEST: $REPO_TEST"
+          echo "secrets.ENV_TEST: ${{ secrets.ENV_TEST }}"
+          echo "secrets.ORG_TEST: ${{ secrets.ORG_TEST }}"
+          echo "secrets.REPO_TEST: ${{ secrets.REPO_TEST }}"
+
           echo "pwd: $(pwd)"
