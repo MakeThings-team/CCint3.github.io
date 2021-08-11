@@ -20,18 +20,20 @@
     var CONFIG = {"hostname":"ccint3.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="皇上吃大饼，两面都蘸酱。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="MakeThings Team&#39;Blog">
-<meta property="og:url" content="http://ccint3.com/archives/2020/index.html">
+  <meta name="description" content="部分安卓系统会出现安装了 fiddler 证书，设置了证书信任，甚至把证书移动到系统目录时，https 网页依旧提示证书不可信； 使用 monitor 检查 log 信息发现提示：  E&#x2F;chromium(8753): [ERROR:ssl_client_socket_impl.cc(941)] handshake failed; returned -1, SSL error code 1, ne">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fiddler_certificate_not_workl -  Fiddler 证书在某些安卓设备上不可信">
+<meta property="og:url" content="http://ccint3.com/2020/05/06/Fiddler-certificate-not-work/index.html">
 <meta property="og:site_name" content="MakeThings Team&#39;Blog">
-<meta property="og:description" content="皇上吃大饼，两面都蘸酱。">
+<meta property="og:description" content="部分安卓系统会出现安装了 fiddler 证书，设置了证书信任，甚至把证书移动到系统目录时，https 网页依旧提示证书不可信； 使用 monitor 检查 log 信息发现提示：  E&#x2F;chromium(8753): [ERROR:ssl_client_socket_impl.cc(941)] handshake failed; returned -1, SSL error code 1, ne">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-06T03:20:10.000Z">
+<meta property="article:modified_time" content="2021-08-11T07:15:28.456Z">
 <meta property="article:author" content="MakeThings Team">
-<meta property="article:tag" content="asm, C&#x2F;C++, C++, android, windows">
+<meta property="article:tag" content="Android, HTTPS">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://ccint3.com/archives/2020/">
+<link rel="canonical" href="http://ccint3.com/2020/05/06/Fiddler-certificate-not-work/">
 
 
 <script id="page-configurations">
@@ -39,12 +41,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归档 | MakeThings Team'Blog</title>
+  <title>Fiddler_certificate_not_workl -  Fiddler 证书在某些安卓设备上不可信 | MakeThings Team'Blog</title>
   
 
 
@@ -142,234 +144,111 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 11 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://ccint3.com/2020/05/06/Fiddler-certificate-not-work/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="MakeThings Team">
+      <meta itemprop="description" content="皇上吃大饼，两面都蘸酱。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeThings Team'Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Fiddler_certificate_not_workl -  Fiddler 证书在某些安卓设备上不可信
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-06 11:20:10" itemprop="dateCreated datePublished" datetime="2020-05-06T11:20:10+08:00">2020-05-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-11 15:15:28" itemprop="dateModified" datetime="2021-08-11T15:15:28+08:00">2021-08-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2020</span>
-    </div>
+        <p>部分安卓系统会出现安装了 fiddler 证书，设置了证书信任，甚至把证书移动到系统目录时，https 网页依旧提示证书不可信；</p>
+<p>使用 monitor 检查 log 信息发现提示：</p>
+<blockquote>
+<p>E/chromium(8753): [ERROR:ssl_client_socket_impl.cc(941)] handshake failed; returned -1, SSL error code 1, net_error -213</p>
+</blockquote>
+<p>搜索报错信息，找到 <a target="_blank" rel="noopener" href="https://chromium.googlesource.com/chromium/src/+/lkgr/net/socket/ssl_client_socket_impl.cc">chromium project</a> 的源码，发现似乎是 MapLastOpenSSLError 函数返回的 -213 错误，错误代码的宏格式为 <code>ERR_SSL_CLIENT_AUTH_NO_COMMON_ALGORITHMS</code>；</p>
+<p>搜索 “ssl error code list” 找到 <code>net_error_list.h</code>，发现 -213 错误的详细宏定义为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// The certificate&#x27;s validity period is too long.</span></span><br><span class="line">NET_ERROR(CERT_VALIDITY_TOO_LONG, <span class="number">-213</span>)</span><br></pre></td></tr></table></figure>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-12-04T21:33:22+08:00"
-              content="2020-12-04">
-          12-04
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/12/04/modify-android-q-for-sailfish/" itemprop="url">
-            <span itemprop="name">sailfish 上修改 android Q</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-15T13:25:49+08:00"
-              content="2020-11-15">
-          11-15
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/11/15/android-avb/" itemprop="url">
-            <span itemprop="name">android-avb</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-01T05:07:54+08:00"
-              content="2020-11-01">
-          11-01
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/10/31/android-retrofit2-hook/" itemprop="url">
-            <span itemprop="name">android retrofit2 hook：retrofit2 框架逆向分析和hook</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-01T02:51:57+08:00"
-              content="2020-11-01">
-          11-01
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/10/31/frida-install/" itemprop="url">
-            <span itemprop="name">frida install：安装frida</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-11-01T02:11:00+08:00"
-              content="2020-11-01">
-          11-01
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/10/31/iptables-ipv4-packet-redirect/" itemprop="url">
-            <span itemprop="name">iptables ipv4 packet redirect：iptables 对 ipv4 数据包的重定向</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-05-06T11:20:10+08:00"
-              content="2020-05-06">
-          05-06
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/05/06/Fiddler-certificate-not-work/" itemprop="url">
-            <span itemprop="name">Fiddler_certificate_not_workl -  Fiddler 证书在某些安卓设备上不可信</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-03-07T17:22:48+08:00"
-              content="2020-03-07">
-          03-07
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/03/07/FridaSkill/" itemprop="url">
-            <span itemprop="name">Frida Skill：小技巧</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-03-07T16:20:08+08:00"
-              content="2020-03-07">
-          03-07
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/03/07/AndroidSourceCode/" itemprop="url">
-            <span itemprop="name">Android Source Code Review</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-03-07T14:03:47+08:00"
-              content="2020-03-07">
-          03-07
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/03/07/adb%20forward-Rinetd/" itemprop="url">
-            <span itemprop="name">adb forward + Rinetd：如何让Android设备变成一台服务器</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-03-07T13:42:47+08:00"
-              content="2020-03-07">
-          03-07
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/03/07/AndroidSkill/" itemprop="url">
-            <span itemprop="name">Android Skill：小技巧</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
+<p>继续搜索 “fiddler The certificate’s validity period is too long.” 在 Fiddler 论坛找到<a target="_blank" rel="noopener" href="https://www.telerik.com/forums/shorter-validity-periods-for-certificates">该帖子</a>，看起来有人碰到过类似问题且已有解决方案：</p>
+<blockquote>
+<p>在 Fiddler <a target="_blank" rel="noopener" href="https://www.telerik.com/fiddler/add-ons">插件页面</a> 找到并下载<br><a target="_blank" rel="noopener" href="https://telerik-fiddler.s3.amazonaws.com/fiddler/addons/fiddlercertmaker.exe">CertMaker for iOS and Android</a><br>双击下载好的 exe，重启 Fiddler，在 Fiddler https 界面重置证书并重新生成；<br>再按照其他帖子的介绍将证书导入到系统(未测试直接安装为用户证书)，现在就能正常抓 https 网页不提示错误。</p>
+</blockquote>
 
     </div>
-  </div>
-  
-  
-  
 
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android-HTTPS/" rel="tag"># Android, HTTPS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/07/FridaSkill/" rel="prev" title="Frida Skill：小技巧">
+      <i class="fa fa-chevron-left"></i> Frida Skill：小技巧
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/31/iptables-ipv4-packet-redirect/" rel="next" title="iptables ipv4 packet redirect：iptables 对 ipv4 数据包的重定向">
+      iptables ipv4 packet redirect：iptables 对 ipv4 数据包的重定向 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
   
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/archives/2020/page/2/">2</a><a class="extend next" rel="next" href="/archives/2020/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
+  
+  
 
 
 
