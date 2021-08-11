@@ -17,6 +17,9 @@ jobs:
         env:
           REPO_TEST: ${{ secrets.REPO_TEST }}
         run: |
+          if [[ "$REPO_TEST" == "***" ]]; then
+            echo "is ***"
+          fi
           echo "REPO_TEST: $REPO_TEST"
           echo "secrets.ENV_TEST: ${{ secrets.ENV_TEST }}"
           echo "secrets.ORG_TEST: ${{ secrets.ORG_TEST }}"
