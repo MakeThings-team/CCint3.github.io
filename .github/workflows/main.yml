@@ -17,8 +17,6 @@ jobs:
 
       - name: Check
         run: |
-          echo ${{ env.NODE_VERSION }}
-          echo $(pwd)
-          echo $(which npm)
-          echo $(which node)
-          echo $(which hexo)
+          echo "secrets: ${{ secrets }}"
+          echo "env.NODE_VERSION: ${{ env.NODE_VERSION }}"
+          echo "pwd: $(pwd)"
