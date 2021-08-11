@@ -14,7 +14,10 @@ jobs:
 
     steps:
       - name: Check
+        env:
+          sec: ${{ secrets.TEST_PRIVATE }}
         run: |
+          echo "sec: $sec"
           echo "secrets: ${{ secrets }}"
           echo "secrets.TEST: ${{ secrets.TEST }}"
           echo "secrets.testENV: ${{ secrets.testENV }}"
