@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ccint3.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介以下内容如无特殊说明均基于IPv4的TCP&#x2F;IP方式通讯。 因各种原因Android设备的WIFI功能无法进行网络连接或连接不稳定，经常出现掉线的情况。导致无法稳定持久的让Android设备对外提供服务。 例如： Android设备A（以下简称设备A）原本以WIFI形式连接到局域网中，并且监听8082端口等待局域网内的其他设备访问并提供HTTP服务。但是设备A的WIFI模块不稳定。那么可以通过">
+<meta property="og:type" content="article">
+<meta property="og:title" content="adb forward + Rinetd：如何让Android设备变成一台服务器">
+<meta property="og:url" content="http://ccint3.com/2020/03/07/adb%20forward-Rinetd/index.html">
+<meta property="og:site_name" content="MakeThings Team&#39;Blog">
+<meta property="og:description" content="简介以下内容如无特殊说明均基于IPv4的TCP&#x2F;IP方式通讯。 因各种原因Android设备的WIFI功能无法进行网络连接或连接不稳定，经常出现掉线的情况。导致无法稳定持久的让Android设备对外提供服务。 例如： Android设备A（以下简称设备A）原本以WIFI形式连接到局域网中，并且监听8082端口等待局域网内的其他设备访问并提供HTTP服务。但是设备A的WIFI模块不稳定。那么可以通过">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-07T06:03:47.000Z">
+<meta property="article:modified_time" content="2021-08-11T06:47:32.947Z">
+<meta property="article:author" content="MakeThings Team">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="adb">
+<meta property="article:tag" content="Rinetd">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://ccint3.com/2020/03/07/adb%20forward-Rinetd/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>adb forward + Rinetd：如何让Android设备变成一台服务器 | MakeThings Team'Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeThings Team'Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://ccint3.com/2020/03/07/adb%20forward-Rinetd/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="MakeThings Team">
+      <meta itemprop="description" content="皇上吃大饼，两面都蘸酱。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeThings Team'Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          adb forward + Rinetd：如何让Android设备变成一台服务器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-07 14:03:47" itemprop="dateCreated datePublished" datetime="2020-03-07T14:03:47+08:00">2020-03-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-11 14:47:32" itemprop="dateModified" datetime="2021-08-11T14:47:32+08:00">2021-08-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/Tools/" itemprop="url" rel="index"><span itemprop="name">Tools</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>以下内容如无特殊说明均基于IPv4的TCP/IP方式通讯。</p>
+<p>因各种原因Android设备的<code>WIFI</code>功能无法进行网络连接或连接不稳定，经常出现掉线的情况。导致无法稳定持久的让Android设备对外提供服务。</p>
+<p>例如：</p>
+<p><strong>Android设备A</strong>（以下简称<strong>设备A</strong>）原本以<code>WIFI</code>形式连接到局域网中，并且监听<code>8082</code>端口等待局域网内的其他设备访问并提供HTTP服务。但是<strong>设备A</strong>的<code>WIFI</code>模块不稳定。那么可以通过<code>adb forward + Rinetd</code>使<strong>设备A</strong>通过USB的方式向外提供持久可靠的HTTP服务。</p>
+<h2 id="它是如何工作的"><a href="#它是如何工作的" class="headerlink" title="它是如何工作的"></a>它是如何工作的</h2><ul>
+<li><p><strong>设备A：</strong>监听<em>A端口</em>并等待连接。</p>
+</li>
+<li><p><strong>adb forward：</strong>作为路由的功能，将<em>计算机A</em>上<em>A端口</em>接收的数据以USB传输给<em>设备A</em>的<em>A端口</em>。</p>
+</li>
+<li><p><strong>计算机A：</strong>监听<em>B端口</em>并允许来自局域网的连接，将<em>B端口</em>上接收的数据转发给它自己的<em>A端口</em>。</p>
+</li>
+<li><p><strong>通讯方式：</strong> </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">设备A &lt;&#x3D;&#x3D;设备A的A端口&#x3D;&#x3D;&gt; adb forward &lt;&#x3D;&#x3D;计算机A的A端口&#x3D;&#x3D;&gt; rinetd &lt;&#x3D;&#x3D;计算机A的B端口&#x3D;&#x3D;&gt; 局域网内的其他设备</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h2 id="要求"><a href="#要求" class="headerlink" title="要求"></a>要求</h2><ul>
+<li><strong>Rinetd：</strong>端口转发工具</li>
+</ul>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><ul>
+<li><strong>adb</strong>转发端口</li>
+</ul>
+<p>假设<strong>设备A</strong>正在监听<code>8082</code>端口，那么就需要将<strong>计算机A</strong>的<code>18082</code>端口接收来的数据转发到<strong>设备A</strong>的<code>8082</code>端口。这里的端口都可以自定义的，不需要一定是<code>8082</code>和<code>18082</code>；</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb -s 84B7N16620000115 forward tcp:18082 tcp:8082</span><br></pre></td></tr></table></figure>
+
+<p>也可以</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb -s 84B7N16620000115 forward tcp:0 tcp:8082</span><br></pre></td></tr></table></figure>
+
+<p><strong>-s选项：</strong>可以指定设备序列号，在多个Android设备连接到同一台计算机时，这个选项是非常有用的。</p>
+<p><strong>tcp:18082 或 tcp:0：</strong>adb将在<strong>计算机A</strong>的<code>18082</code>或任意一个可用的端口上开启监听。如果使用<code>tcp:0</code>，那么<code>adb forwad</code>成功后将输出成功开启监听的端口号。</p>
+<p><strong>tcp:8082：</strong>adb将<strong>计算机A</strong>上<code>18082</code>端口或任意一个可用端口上接收到的数据转发给序列号为<em>84B7N16620000115</em>的<code>8082</code>端口去。</p>
+<p>你需要确保<strong>计算机A</strong>的<code>18082</code>端口是空闲的，否则adb会提示你端口被占用。</p>
+<p>到这一步，你已经可以成功执行<code>telnet</code>或<code>curl</code>来测试adb的端口转发了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">telnet 127.0.0.1 18082</span><br><span class="line">curl 127.0.0.1 18082</span><br></pre></td></tr></table></figure>
+
+<p>但是局域网内的其他计算机仍然不能通过局域网IP访问到<strong>计算机A</strong>的<code>18082</code>端口，这是因为adb只监听回环IP，不允许来自局域网内的连接。</p>
+<ul>
+<li>安装并配置<strong>Rinetd</strong></li>
+</ul>
+<p><code>Rinetd</code>端口转发工具允许来自局域网内的连接，所以还需要通过<code>Rinetd</code>对<strong>计算机A</strong>的<code>18082</code>端口做一次转发，以对局域网提供<strong>设备A</strong>的服务。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install rinetd</span><br><span class="line">sudo vim /etc/rinetd.conf</span><br></pre></td></tr></table></figure>
+
+<p>在该文件的最后一行添加以下内容并保存退出<br><code>0.0.0.0 10082 127.0.0.1 18082</code></p>
+<p>该配置指出，监听<strong>计算机A</strong>的<code>10082</code>端口并将接收到的数据转发给本机的<code>18082</code>端口；</p>
+<ul>
+<li>添加防火墙规则或关闭防火墙</li>
+</ul>
+<p>关闭防火墙</p>
+<p>至此，<strong>计算机A</strong>上开启了<code>18082</code>和<code>10082</code>两个端口，并且局域网内的其他计算机可以通过<code>局域网ip:10082</code>访问<strong>设备A</strong>的<code>8082</code>端口。并可以通过以下命令测试：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">telnet 127.0.0.1 18082 // 测试本机18082端口是否能正常向手机的8082端口发送数据</span><br><span class="line">telnet 127.0.0.1 10082 // 测试本机10082端口是否能正常向本机的18082端口发送数据</span><br><span class="line">telnet 192.168.14.30 18082 // 该命令将失败，因为无法通过局域网访问adb转发的端口</span><br><span class="line">telnet 192.168.14.30 10082 // 测试本机10082端口是否能正常向本机的18082端口发送数据</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/adb/" rel="tag"># adb</a>
+              <a href="/tags/Rinetd/" rel="tag"># Rinetd</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/07/AndroidSkill/" rel="prev" title="Android Skill：小技巧">
+      <i class="fa fa-chevron-left"></i> Android Skill：小技巧
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/07/AndroidSourceCode/" rel="next" title="Android Source Code Review">
+      Android Source Code Review <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%83%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84"><span class="nav-number">2.</span> <span class="nav-text">它是如何工作的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A6%81%E6%B1%82"><span class="nav-number">3.</span> <span class="nav-text">要求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">4.</span> <span class="nav-text">部署</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">MakeThings Team</p>
+  <div class="site-description" itemprop="description">皇上吃大饼，两面都蘸酱。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MakeThings Team</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

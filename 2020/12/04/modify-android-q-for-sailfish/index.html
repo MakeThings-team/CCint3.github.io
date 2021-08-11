@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ccint3.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="需要 android系统镜像：10.0.0 (QP1A.191005.007.A3, Dec 2019) - d455265945bb936a653730031af7d7a4aba70dc0c775024666a53491c9833b61 simg2img: Android sparse image转Linux image；用来将system.img, vendor.img转为可挂载的image">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sailfish 上修改 android Q">
+<meta property="og:url" content="http://ccint3.com/2020/12/04/modify-android-q-for-sailfish/index.html">
+<meta property="og:site_name" content="MakeThings Team&#39;Blog">
+<meta property="og:description" content="需要 android系统镜像：10.0.0 (QP1A.191005.007.A3, Dec 2019) - d455265945bb936a653730031af7d7a4aba70dc0c775024666a53491c9833b61 simg2img: Android sparse image转Linux image；用来将system.img, vendor.img转为可挂载的image">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://source.android.com/security/images/dm-verity-hash-table.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.avbmeta.magic.enabled.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.avbmeta.magic.disabled.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.avbmeta.magic.enabled.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.avbmeta.magic.disabled.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.winhex.convert.disk.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.disk.pull.init.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/init.SelinuxInitialize.string.location.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/init.SelinuxInitialize.string.location1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/init.SelinuxInitialize.security_getenforce.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.disasm.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.asm.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.asm.modify.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.disasm.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify2.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify5.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.goto.inode.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.modify.inode.png">
+<meta property="article:published_time" content="2020-12-04T13:33:22.000Z">
+<meta property="article:modified_time" content="2021-08-11T06:47:32.947Z">
+<meta property="article:author" content="MakeThings Team">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://source.android.com/security/images/dm-verity-hash-table.png">
+
+<link rel="canonical" href="http://ccint3.com/2020/12/04/modify-android-q-for-sailfish/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>sailfish 上修改 android Q | MakeThings Team'Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeThings Team'Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://ccint3.com/2020/12/04/modify-android-q-for-sailfish/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="MakeThings Team">
+      <meta itemprop="description" content="皇上吃大饼，两面都蘸酱。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeThings Team'Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          sailfish 上修改 android Q
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-12-04 21:33:22" itemprop="dateCreated datePublished" datetime="2020-12-04T21:33:22+08:00">2020-12-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-11 14:47:32" itemprop="dateModified" datetime="2021-08-11T14:47:32+08:00">2021-08-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/Skill/" itemprop="url" rel="index"><span itemprop="name">Skill</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="需要"><a href="#需要" class="headerlink" title="需要"></a>需要</h4><ul>
+<li>android系统镜像：<a target="_blank" rel="noopener" href="https://dl.google.com/dl/android/aosp/sailfish-qp1a.191005.007.a3-factory-d4552659.zip">10.0.0 (QP1A.191005.007.A3, Dec 2019)</a> - d455265945bb936a653730031af7d7a4aba70dc0c775024666a53491c9833b61</li>
+<li>simg2img: Android sparse image转Linux image；用来将system.img, vendor.img转为可挂载的image</li>
+<li>img2simg: Linux image转Android sparse image；将可挂载的image转为可刷写的image</li>
+<li>X-Ways Forensics: 以16进制编辑文件内容，并支持ext4文件系统格式挂载文件</li>
+<li>IDA Pro：反汇编支持</li>
+<li>ARM 架构参考手册：汇编指令支持</li>
+</ul>
+<h4 id="解压谷歌官方镜像压缩包后得到以下文件树"><a href="#解压谷歌官方镜像压缩包后得到以下文件树" class="headerlink" title="解压谷歌官方镜像压缩包后得到以下文件树"></a>解压谷歌官方镜像压缩包后得到以下文件树</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">pwd</span></span></span><br><span class="line">/home/ccint3/Desktop</span><br><span class="line"><span class="meta">$</span><span class="bash"> tree sailfish</span></span><br><span class="line">sailfish  # 根目录，将谷歌官方镜像压缩包存放至该目录中</span><br><span class="line">├── sailfish-qp1a.191005.007.a3-factory-d4552659  # 解压谷歌官方镜像压缩包后得到的目录</span><br><span class="line">│   └── sailfish-qp1a.191005.007.a3  # 解压谷歌官方镜像压缩包后得到的目录</span><br><span class="line">│       ├── bootloader-sailfish-8996-012001-1908071822.img  # bootloader image 文件</span><br><span class="line">│       ├── flash-all.bat  # windows刷机脚本</span><br><span class="line">│       ├── flash-all.sh   # linux刷机脚本</span><br><span class="line">│       ├── flash-base.sh  # 刷机脚本，只刷bootloader和基带</span><br><span class="line">│       ├── image-sailfish-qp1a.191005.007.a3  # 解压image压缩包得到的目录</span><br><span class="line">│       │   ├── android-info.txt  # 描述文件，描述当前目录下的image适用于那种设备和基带版本要求</span><br><span class="line">│       │   ├── boot.img  # boot image，包含内核以及recovery分区（android Q及以上版本将boot中的root分区移动至了system.img中）</span><br><span class="line">│       │   ├── system.img  # 包含system分区以及root分区 + avb校验元数据</span><br><span class="line">│       │   ├── system_other.img  # 附属的system分区内容（其中的数据不是非常重要）</span><br><span class="line">│       │   └── vendor.img  # 包含vendor分区 + avb校验元数据</span><br><span class="line">│       ├── image-sailfish-qp1a.191005.007.a3.zip  # image压缩包，包含system和vendor image</span><br><span class="line">│       └── radio-sailfish-8996-130361-1905270421.img  ## 基带 image 文件</span><br><span class="line">└── sailfish-qp1a.191005.007.a3-factory-d4552659.zip  # 谷歌官方镜像压缩包</span><br><span class="line"></span><br><span class="line">3 directories, 12 files</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="工作目录和其文件树"><a href="#工作目录和其文件树" class="headerlink" title="工作目录和其文件树"></a>工作目录和其文件树</h4><p>下文的操作如无特殊说明，均在<code>sailfish/sailfish-qp1a.191005.007.a3-factory-d4552659/sailfish-qp1a.191005.007.a3/image-sailfish-qp1a.191005.007.a3</code>中进行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">pwd</span></span></span><br><span class="line">/home/ccint3/Desktop/sailfish/sailfish-qp1a.191005.007.a3-factory-d4552659/sailfish-qp1a.191005.007.a3/image-sailfish-qp1a.191005.007.a3</span><br><span class="line"><span class="meta">$</span><span class="bash"> tree</span></span><br><span class="line">.</span><br><span class="line">├── android-info.txt</span><br><span class="line">├── boot.img</span><br><span class="line">├── system.img</span><br><span class="line">├── system_other.img</span><br><span class="line">└── vendor.img</span><br><span class="line"></span><br><span class="line">0 directories, 5 files</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="关闭avb"><a href="#关闭avb" class="headerlink" title="关闭avb"></a>关闭avb</h4><p>avb功能首先对分区进行每4kb字节的数据生成校验值，并将这些校验值合并到一起生成一个校验值数据块，校验值数据块的大小取决于分区大小并将这个数据块称作avb metadata，最后将avb metadata附加到image结尾，一同刷写进android设备。</p>
+<p>android设备启动时，首先对avb metadata的root节点进行校验，如果通过则继续启动，否则将陷入bootloop.</p>
+<p><img src="https://source.android.com/security/images/dm-verity-hash-table.png" alt="dm-verity hash table"></p>
+<p>如果不关闭avb功能，对分区的修改会导致android设备bootloop或者修改的内容无法生效（无法生效是通过FEC向前纠错来实现的）。</p>
+<p>avb metadata头部的magic number可以控制avb是否生效。通过修改avb metadata magic number可以关闭avb功能；</p>
+<p>校验元数据Magic number的定义如下：</p>
+<p><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/fs_mgr/include/fs_mgr.h#30">#define VERITY_METADATA_MAGIC_NUMBER 0xb001b001</a></p>
+<p><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/fs_mgr/include/fs_mgr.h#34">#define VERITY_METADATA_MAGIC_DISABLE 0x46464f56 // “VOFF”</a></p>
+<ul>
+<li><p>在<code>android O</code>上可以直接修改<code>boot.img/fstab.sailfish</code>文件，删除其中的<code>verity</code>字段即可；</p>
+<p>这是因为boot.img中的root分区并没有被avb保护，所以可以直接修改root分区中的文件后重新打包root分区到boot.img中进行刷写。</p>
+</li>
+<li><p>在<code>android Q</code>上boot.img中的root分区被移动到system.img中，所以修改boot.img是不生效的。</p>
+</li>
+</ul>
+<p>关闭android Q的avb：</p>
+<ol>
+<li><p>重命名</p>
+<p>将<code>system.img</code>和<code>vendor.img</code>分别命名为<code>system.img.org</code>和<code>vendor.img.org</code>以备份</p>
+</li>
+<li><p>android sparse image转linux image</p>
+<p>使用simg2img将<code>system.img.org</code>和<code>vendor.img.org</code>分别转为<code>system.img.raw</code>和<code>vendor.img.raw</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> simg2img system.img.org system.img.raw</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> simg2img vendor.img.org vendor.img.raw</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改avb校验元数据Magic number</p>
+<p>使用16进制编辑器<code>X-Ways Forensics</code>分别修改<code>system.img.raw</code>和<code>vendor.img.raw</code>中的校验元数据，将<code>0xb001b001</code>修改为<code>0x46464f56</code>；</p>
+<p>搜索16进制字符串<code>01B001B000000000</code>定位到校验元数据头Magic number的位置</p>
+<ul>
+<li><p>修改system.img.raw，偏移：<code>0x7EFE5000</code></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.avbmeta.magic.enabled.png" alt="system.img.raw avbmeta magic enabled"></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.avbmeta.magic.disabled.png" alt="system.img.raw avbmeta magic disabled"></p>
+</li>
+<li><p>修改vendor.img.raw，偏移：<code>0x1299b000</code></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.avbmeta.magic.enabled.png" alt="vendor.img.raw avbmeta magic enabled"></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.avbmeta.magic.disabled.png" alt="vendor.img.raw avbmeta magic disabled"></p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="关闭selinux"><a href="#关闭selinux" class="headerlink" title="关闭selinux"></a>关闭selinux</h4><ul>
+<li><p>android O</p>
+<p>修改aosp源码<a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-8.1.0_r52/init/init.cpp#587">init.cpp: selinux_is_enforcing</a>函数，使该函数直接返回false。</p>
+<p>重新编译init可执行文件。</p>
+<p>boot.img解包后替换init可执行文件。</p>
+<p>重新打包boot.img后刷写到android设备中。</p>
+</li>
+<li><p>android Q</p>
+<p>boot.img中的根分区被移动到system.img中，init可执行文件也同样被移动到system.img中。</p>
+<p>那么就需要对system.img中的init可执行文件进行修改，但是遇到一个问题就是system.img无法挂载为可读可写。并且remount时提示“写保护”。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo mount system.img.raw system_raw</span></span><br><span class="line">mount: /home/ccint3/Desktop/sailfish/sailfish-qp1a.191005.007.a3-factory-d4552659/sailfish-qp1a.191005.007.a3/image-sailfish-qp1a.191005.007.a3/system_raw: wrong fs type, bad option, bad superblock on /dev/loop6, missing codepage or helper program, or other error.</span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo mount -r system.img.raw system_raw</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo mount -o rw,remount system_raw</span></span><br><span class="line">mount: /home/ccint3/Desktop/sailfish/sailfish-qp1a.191005.007.a3-factory-d4552659/sailfish-qp1a.191005.007.a3/image-sailfish-qp1a.191005.007.a3/system_raw: cannot remount /dev/loop6 read-write, is write-protected.</span><br></pre></td></tr></table></figure>
+
+<p>那么只能对system.img进行16进制编辑并保存，因此就需要<code>X-Ways Forensics</code>工具提供支持，这个工具支持以16进制编辑system.img，并且可以将system.img转为ext4的文件系统并编辑。</p>
+<ol>
+<li><p>阅读android Q的源码，了解如何关闭selinux</p>
+<p>android Q上开启selinux的源码发生了变化，对selinux进行了独立的源码管理</p>
+<p><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/init/selinux.cpp#99">selinux.cpp: IsEnforcing</a></p>
+<p>查看IsEnforcing的调用关系，并定位到<a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/init/selinux.cpp#423">selinux.cpp: SelinuxInitialize</a></p>
+</li>
+<li><p>修改system.img中的init可执行文件</p>
+<p><code>X-Ways Forensics</code>打开system.img，并将文件转换为磁盘</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.winhex.convert.disk.png" alt="system.img.raw winhex convert to disk"></p>
+<p>将system.img磁盘中的<code>system/bin/init</code>可执行文件复制出来</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.disk.pull.init.png" alt="system.img.raw disk pull init"></p>
+<p>使用<code>IDA Pro x64</code>打开init可执行文件进行分析，因为从源码中我们知道SelinuxInitialize函数最终启动了selinux，因此我们在IDA中定位SelinuxInitialize函数，在SelinuxInitialize中有一些日志字符串，我们通过这些字符串就可以定位SelinuxInitialize的位置，例如：<code>Loading SELinux policy</code>；在IDA中<code>shift + F12</code>打开字符串窗口，并搜索<code>Loading SELinux policy</code>获取以下结果</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/init.SelinuxInitialize.string.location.png" alt="init.SelinuxInitialize string location"></p>
+<p>对字符串参考引用后，最终定位到下图的位置</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/init.SelinuxInitialize.string.location1.png" alt="init.SelinuxInitialize string location"></p>
+<p>反汇编后，看到下图中的代码</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/init.SelinuxInitialize.security_getenforce.png" alt="init.SelinuxInitialize security_getenforce"></p>
+<p>关键代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 因为编译器内联汇编的原因，IsEnforcing函数直接被替换为了常量 1</span></span><br><span class="line"><span class="comment">// 与 security_getenforce 的返回值做比较</span></span><br><span class="line"><span class="keyword">if</span> ( (<span class="keyword">unsigned</span> <span class="keyword">int</span>)security_getenforce() != <span class="number">1</span> )</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// 因为编译器内联汇编的原因，所以security_setenforce函数的参数被替换为了常量1</span></span><br><span class="line">  <span class="comment">// 通过 security_setenforce(1) 来启动selinux</span></span><br><span class="line">  <span class="comment">// 因此我们需要修改security_setenforce函数的参数，将参数该为0，表示关闭selinux</span></span><br><span class="line">  v6 = (android::base *)security_setenforce(<span class="number">1L</span>L);</span><br><span class="line">  <span class="keyword">if</span> ( (_DWORD)v6 )</span><br><span class="line">  &#123;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们的最终目的是修改<code>security_setenforce(1)</code>为<code>security_setenforce(0)</code>即可关闭selinux；</p>
+<p>因为默认请情况下<code>security_getenforce</code>返回1，表示默认启动selinux；那么<code>security_getenforce() != 1</code>则表示不会调用<code>security_setenforce</code>函数。</p>
+<p>至此我们明确了需要修改的两处内容：</p>
+<p>1：将<code>security_getenforce() != 1</code>修改为<code>security_getenforce() != 0</code></p>
+<p>2：将<code>security_setenforce(1LL)</code>修改为<code>security_setenforce(0LL)</code></p>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="关闭adbd指纹认证"><a href="#关闭adbd指纹认证" class="headerlink" title="关闭adbd指纹认证"></a>关闭adbd指纹认证</h4><ul>
+<li><p>android O</p>
+<p>修改aosp adbd源码，重新编译之后，解包system.img，替换system.img中的adbd可执行文件，然后对system.img重新打包，之后刷写进android设备即可。</p>
+</li>
+<li><p>android Q</p>
+<p>实现方式同<code>关闭selinux</code>类似，定位adbd源码位置，查看如何在源码级关闭指纹认证。之后使用<code>IDA Pro</code>修改对应的汇编，最后在<code>X-Ways Forensics</code>中修改system.img中adbd的文件内容。</p>
+<p>源码位置：<a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/adb/daemon/main.cpp#190">adb/daemon/main.cpp：adbd_main</a></p>
+<p>关键代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">adbd_main</span><span class="params">(<span class="keyword">int</span> server_port)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(ALLOW_ADBD_NO_AUTH)</span></span><br><span class="line">    <span class="comment">// If ro.adb.secure is unset, default to no authentication required.</span></span><br><span class="line">    auth_required = android::base::GetBoolProperty(<span class="string">&quot;ro.adb.secure&quot;</span>, <span class="literal">false</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(__ANDROID__)</span></span><br><span class="line">    <span class="keyword">if</span> (is_device_unlocked()) &#123;  <span class="comment">// allows no authentication when the device is unlocked.</span></span><br><span class="line">        auth_required = android::base::GetBoolProperty(<span class="string">&quot;ro.adb.secure&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    adbd_auth_init();</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>全局变量<code>auth_required</code>为<code>true</code>时，开启adbd指纹认证，为<code>false</code>时则关闭指纹认证。</p>
+<p>该变量通过<code>ro.adb.secure</code>来控制，在<code>default.prop</code>中设置该属性，或者修改<code>GetBoolProperty</code>函数的返回值。</p>
+<p>在system.img中复制出<code>system/bin/adbd</code>可执行文件，并使用<code>IDA Pro x64</code>打开。<br>通过<code>ro.adb.secure</code>字符串参考引用来定位<code>adbd_main</code>函数的位置。最终定位到如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.png" alt="adbd.adbd_main"></p>
+<p>关键代码的反汇编如下：</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.disasm.png" alt="adbd.adbd_main disasm"></p>
+<p>查看对应的汇编代码如下：</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.asm.png" alt="adbd.adbd_main asm"></p>
+<p>偏移<code>20F0</code>处的汇编<code>AND W8, W0, #1</code>修改为<code>MOV W8, #0</code></p>
+<p><code>MOV W8, #0</code>的汇编指令：<code>0x52800008</code></p>
+<p>修改如下：</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.asm.modify.png" alt="adbd.adbd_main asm modify"></p>
+<p>最后通过<code>X-Ways Forensics</code>将修改的内容应用到system.img <code>system/bin/adbd</code>中</p>
+</li>
+</ul>
+<h4 id="禁止adbd-root权限降级"><a href="#禁止adbd-root权限降级" class="headerlink" title="禁止adbd root权限降级"></a>禁止adbd root权限降级</h4><p>修改方式同<code>关闭adbd指纹认证</code></p>
+<p>源码位置：</p>
+<p><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/adb/daemon/main.cpp#190">adb/daemon/main.cpp：adbd_main</a></p>
+<p><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/adb/daemon/main.cpp#109">adb/daemon/main.cpp：drop_privileges</a></p>
+<p><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/adb/daemon/main.cpp#74">adb/daemon/main.cpp：should_drop_privileges</a></p>
+<p>关键代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">adbd_main</span><span class="params">(<span class="keyword">int</span> server_port)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__ANDROID__)</span></span><br><span class="line">    drop_privileges(server_port);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">drop_privileges</span><span class="params">(<span class="keyword">int</span> server_port)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">if</span> (should_drop_privileges()) &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// minijail_enter() will abort if any priv-dropping step fails.</span></span><br><span class="line">        minijail_enter(jail.get());</span><br><span class="line">        <span class="keyword">if</span> (root_seclabel != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (selinux_android_setcon(root_seclabel) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                LOG(FATAL) &lt;&lt; <span class="string">&quot;Could not set SELinux context&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">string</span> error;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">string</span> local_name =</span><br><span class="line">            android::base::StringPrintf(<span class="string">&quot;tcp:%d&quot;</span>, server_port);</span><br><span class="line">        <span class="keyword">if</span> (install_listener(local_name, <span class="string">&quot;*smartsocket*&quot;</span>, <span class="literal">nullptr</span>, <span class="number">0</span>, <span class="literal">nullptr</span>, &amp;error)) &#123;</span><br><span class="line">            LOG(FATAL) &lt;&lt; <span class="string">&quot;Could not install *smartsocket* listener: &quot;</span> &lt;&lt; error;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">bool</span> <span class="title">should_drop_privileges</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// &quot;adb root&quot; not allowed, always drop privileges.</span></span><br><span class="line">    <span class="keyword">if</span> (!ALLOW_ADBD_ROOT &amp;&amp; !is_device_unlocked()) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// The properties that affect `adb root` and `adb unroot` are ro.secure and</span></span><br><span class="line">    <span class="comment">// ro.debuggable. In this context the names don&#x27;t make the expected behavior</span></span><br><span class="line">    <span class="comment">// particularly obvious.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// ro.debuggable:</span></span><br><span class="line">    <span class="comment">//   Allowed to become root, but not necessarily the default. Set to 1 on</span></span><br><span class="line">    <span class="comment">//   eng and userdebug builds.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// ro.secure:</span></span><br><span class="line">    <span class="comment">//   Drop privileges by default. Set to 1 on userdebug and user builds.</span></span><br><span class="line">    <span class="keyword">bool</span> ro_secure = android::base::GetBoolProperty(<span class="string">&quot;ro.secure&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">    <span class="keyword">bool</span> ro_debuggable = __android_log_is_debuggable();</span><br><span class="line">    <span class="comment">// Drop privileges if ro.secure is set...</span></span><br><span class="line">    <span class="keyword">bool</span> drop = ro_secure;</span><br><span class="line">    <span class="comment">// ... except &quot;adb root&quot; lets you keep privileges in a debuggable build.</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> prop = android::base::GetProperty(<span class="string">&quot;service.adb.root&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">    <span class="keyword">bool</span> adb_root = (prop == <span class="string">&quot;1&quot;</span>);</span><br><span class="line">    <span class="keyword">bool</span> adb_unroot = (prop == <span class="string">&quot;0&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (ro_debuggable &amp;&amp; adb_root) &#123;</span><br><span class="line">        drop = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ... and &quot;adb unroot&quot; lets you explicitly drop privileges.</span></span><br><span class="line">    <span class="keyword">if</span> (adb_unroot) &#123;</span><br><span class="line">        drop = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> drop;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>读取<code>ro.secure</code>和<code>service.adb.root</code>属性并判断是否需要降级。</p>
+<p>我们需要将<code>should_drop_privileges</code>的返回值改为<code>false</code>；通过字符串<code>ro.secure</code>使用<code>IDA Pro x64</code>定位到目标代码位置。并反汇编后代码如下：</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.disasm.png" alt="adbd.adbd_main adbroot disasm"></p>
+<p>需要修改的汇编位置如下：</p>
+<p>偏移<code>2270</code>处汇编<code> AND W8, W10, #1</code>修改为<code>MOV W8, #0</code></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify1.png" alt="adbd.adbd_main adbroot asm modify 2270"></p>
+<p>偏移<code>22C8</code>处汇编<code>ORR W21, W9, W8</code>修改为<code>MOV W21, #0</code></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify2.png" alt="adbd.adbd_main adbroot asm modify 22C8"></p>
+<p>偏移<code>22D0</code>处汇编<code>AND W8, W8, #1</code>修改为<code>MOV W8, #0</code></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify3.png" alt="adbd.adbd_main adbroot asm modify 22D0"></p>
+<p>偏移<code>22E8</code>处汇编<code>AND W21, W21, W9</code>修改为<code>MOV W21, #0</code></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify4.png" alt="adbd.adbd_main adbroot asm modify 22E8"></p>
+<p>偏移<code>245C</code>处汇编<code>550400948000F8364B0400941F1800710D420054</code>修改为<code>0xD503201F*5</code></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/adbd.adbd_main.adbroot.asm.modify5.png" alt="adbd.adbd_main adbroot asm modify 245C"></p>
+<h4 id="开机启动adbd，无需打开开发者模式并勾选USB调试"><a href="#开机启动adbd，无需打开开发者模式并勾选USB调试" class="headerlink" title="开机启动adbd，无需打开开发者模式并勾选USB调试"></a>开机启动adbd，无需打开开发者模式并勾选USB调试</h4><p>android Q上通过修改vendor.img中的<code>etc/init/init.usb.rc</code>来影响adbd的启动</p>
+<p>将<code>init.usb.rc</code>修改为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">on property:sys.usb.config&#x3D;mtp</span><br><span class="line">    setprop sys.usb.config adb</span><br><span class="line"></span><br><span class="line">on property:sys.usb.config&#x3D;mtp,adb</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;enable 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;idVendor 18D1</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;idProduct 4EE2</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceClass 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceSubClass 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceProtocol 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;functions $&#123;sys.usb.config&#125;</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;enable 1</span><br><span class="line">    start adbd</span><br><span class="line">    setprop sys.usb.state $&#123;sys.usb.config&#125;</span><br><span class="line"></span><br><span class="line">on property:sys.usb.config&#x3D;rndis</span><br><span class="line">    setprop sys.usb.config adb</span><br><span class="line"></span><br><span class="line">on property:sys.usb.config&#x3D;rndis,adb</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;enable 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;idVendor 18D1</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;idProduct 4EE4</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceClass 239</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceSubClass 2</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceProtocol 1</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;functions $&#123;sys.usb.config&#125;</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;enable 1</span><br><span class="line">    start adbd</span><br><span class="line">    setprop sys.usb.state $&#123;sys.usb.config&#125;</span><br><span class="line"></span><br><span class="line">on property:sys.usb.config&#x3D;ptp</span><br><span class="line">    setprop sys.usb.config adb</span><br><span class="line"></span><br><span class="line">on property:sys.usb.config&#x3D;ptp,adb</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;enable 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;idVendor 18D1</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;idProduct 4EE6</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceClass 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceSubClass 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceProtocol 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;functions ptp,adb</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;enable 1</span><br><span class="line">    start adbd</span><br><span class="line">    setprop sys.usb.state $&#123;sys.usb.config&#125;</span><br><span class="line"></span><br><span class="line">on property:sys.usb.config&#x3D;midi</span><br><span class="line">    setprop sys.usb.config adb</span><br><span class="line"></span><br><span class="line">on property:sys.usb.config&#x3D;midi,adb</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;enable 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;idVendor 18D1</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;idProduct 4EE9</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceClass 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceSubClass 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;bDeviceProtocol 0</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;functions $&#123;sys.usb.config&#125;</span><br><span class="line">    write &#x2F;sys&#x2F;class&#x2F;android_usb&#x2F;android0&#x2F;enable 1</span><br><span class="line">    start adbd</span><br><span class="line">    setprop sys.usb.state $&#123;sys.usb.config&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改后的<code>init.usb.rc</code>相比源文件有所缩短，为了不破坏文件，我们还需要维护这个文件在ext4文件系统inode块文件大小。通过<code>X-Ways Forensics</code>跳转至该文件的<code>inode</code>数据块，统计修改后这个文件的真实大小并修改<code>inode</code>数据库记录即可。</p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.goto.inode.png" alt="vendor.img.raw goto inode"></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.modify.inode.png" alt="vendor.img.raw modify inode"></p>
+<p>最后保存修改并刷写至手机即可</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/15/android-avb/" rel="prev" title="android-avb">
+      <i class="fa fa-chevron-left"></i> android-avb
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9C%80%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">需要</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%8E%8B%E8%B0%B7%E6%AD%8C%E5%AE%98%E6%96%B9%E9%95%9C%E5%83%8F%E5%8E%8B%E7%BC%A9%E5%8C%85%E5%90%8E%E5%BE%97%E5%88%B0%E4%BB%A5%E4%B8%8B%E6%96%87%E4%BB%B6%E6%A0%91"><span class="nav-number">2.</span> <span class="nav-text">解压谷歌官方镜像压缩包后得到以下文件树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E7%9B%AE%E5%BD%95%E5%92%8C%E5%85%B6%E6%96%87%E4%BB%B6%E6%A0%91"><span class="nav-number">3.</span> <span class="nav-text">工作目录和其文件树</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%97%ADavb"><span class="nav-number">4.</span> <span class="nav-text">关闭avb</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%97%ADselinux"><span class="nav-number">5.</span> <span class="nav-text">关闭selinux</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%97%ADadbd%E6%8C%87%E7%BA%B9%E8%AE%A4%E8%AF%81"><span class="nav-number">6.</span> <span class="nav-text">关闭adbd指纹认证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2adbd-root%E6%9D%83%E9%99%90%E9%99%8D%E7%BA%A7"><span class="nav-number">7.</span> <span class="nav-text">禁止adbd root权限降级</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%80%E6%9C%BA%E5%90%AF%E5%8A%A8adbd%EF%BC%8C%E6%97%A0%E9%9C%80%E6%89%93%E5%BC%80%E5%BC%80%E5%8F%91%E8%80%85%E6%A8%A1%E5%BC%8F%E5%B9%B6%E5%8B%BE%E9%80%89USB%E8%B0%83%E8%AF%95"><span class="nav-number">8.</span> <span class="nav-text">开机启动adbd，无需打开开发者模式并勾选USB调试</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">MakeThings Team</p>
+  <div class="site-description" itemprop="description">皇上吃大饼，两面都蘸酱。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MakeThings Team</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

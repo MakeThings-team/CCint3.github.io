@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ccint3.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介该框架是一个网络框架，一般是作为okhttp的上层框架；请求先经过该框架的处理之后再交给okhttp；它的功能实际上是将java interface提取成request请求接口。之后交给 okhttp将发送request。 下面以美团9.8.0作为例子来分析。 分析Retrofit框架Retrofit类Retrofit类是框架的核心类，管理所有的interface；只要获得该对象，就可以调用任">
+<meta property="og:type" content="article">
+<meta property="og:title" content="android retrofit2 hook：retrofit2 框架逆向分析和hook">
+<meta property="og:url" content="http://ccint3.com/2020/10/31/android-retrofit2-hook/index.html">
+<meta property="og:site_name" content="MakeThings Team&#39;Blog">
+<meta property="og:description" content="简介该框架是一个网络框架，一般是作为okhttp的上层框架；请求先经过该框架的处理之后再交给okhttp；它的功能实际上是将java interface提取成request请求接口。之后交给 okhttp将发送request。 下面以美团9.8.0作为例子来分析。 分析Retrofit框架Retrofit类Retrofit类是框架的核心类，管理所有的interface；只要获得该对象，就可以调用任">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-10-31T21:07:54.000Z">
+<meta property="article:modified_time" content="2021-08-11T06:47:32.947Z">
+<meta property="article:author" content="MakeThings Team">
+<meta property="article:tag" content="asm, C&#x2F;C++, C++, android, windows">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://ccint3.com/2020/10/31/android-retrofit2-hook/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>android retrofit2 hook：retrofit2 框架逆向分析和hook | MakeThings Team'Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeThings Team'Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://ccint3.com/2020/10/31/android-retrofit2-hook/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="MakeThings Team">
+      <meta itemprop="description" content="皇上吃大饼，两面都蘸酱。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeThings Team'Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          android retrofit2 hook：retrofit2 框架逆向分析和hook
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-11-01 05:07:54" itemprop="dateCreated datePublished" datetime="2020-11-01T05:07:54+08:00">2020-11-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-11 14:47:32" itemprop="dateModified" datetime="2021-08-11T14:47:32+08:00">2021-08-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/retrofit/" itemprop="url" rel="index"><span itemprop="name">retrofit</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>该框架是一个网络框架，一般是作为okhttp的上层框架；请求先经过该框架的处理之后再交给okhttp；它的功能实际上是将java interface提取成request请求接口。之后交给 okhttp将发送request。</p>
+<p>下面以美团9.8.0作为例子来分析。</p>
+<h3 id="分析Retrofit框架"><a href="#分析Retrofit框架" class="headerlink" title="分析Retrofit框架"></a>分析Retrofit框架</h3><h4 id="Retrofit类"><a href="#Retrofit类" class="headerlink" title="Retrofit类"></a>Retrofit类</h4><p>Retrofit类是框架的核心类，管理所有的interface；只要获得该对象，就可以调用任意一个已经创建好的interface接口；</p>
+<h5 id="Retrofit-Builder"><a href="#Retrofit-Builder" class="headerlink" title="Retrofit$Builder"></a>Retrofit$Builder</h5><p>Retrofit类有一个Builder内部类，用来创建Retrofit类的对象。</p>
+<p>通过hook <code>Retrofit$Builder.build</code>可以获取到Retrofit的对象，也可以通过调用栈继续追踪调用源头（建议）。美团的Retrofit类采用单例设计模式；不同的app Retrofit对象的数量可能不同。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Retrofit <span class="title">build</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span>.baseUrl != <span class="keyword">null</span>) &#123;</span><br><span class="line">        Factory v2 = <span class="keyword">this</span>.callFactory;</span><br><span class="line">        <span class="keyword">if</span>(v2 != <span class="keyword">null</span>) &#123;</span><br><span class="line">            Executor v0 = <span class="keyword">this</span>.httpExecutor;</span><br><span class="line">            <span class="keyword">if</span>(v0 == <span class="keyword">null</span>) &#123;</span><br><span class="line">                v0 = Retrofit.defaultHttpExecutor;</span><br><span class="line">                <span class="keyword">if</span>(v0 == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    v0 = <span class="keyword">this</span>.platform.defaultHttpExecutor();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            Executor v7 = v0;</span><br><span class="line">            Executor v0_1 = <span class="keyword">this</span>.callbackExecutor;</span><br><span class="line">            <span class="keyword">if</span>(v0_1 == <span class="keyword">null</span>) &#123;</span><br><span class="line">                v0_1 = <span class="keyword">this</span>.platform.defaultCallbackExecutor();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            ArrayList v5 = <span class="keyword">new</span> ArrayList(<span class="keyword">this</span>.adapterFactories);</span><br><span class="line">            v5.add(<span class="keyword">this</span>.platform.defaultCallAdapterFactory(v0_1));</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 构造 Retrofit 对象</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Retrofit(v2, <span class="keyword">this</span>.baseUrl, <span class="keyword">new</span> ArrayList(<span class="keyword">this</span>.converterFactories), v5, <span class="keyword">this</span>.interceptors, v7, v0_1, <span class="keyword">this</span>.validateEagerly, <span class="keyword">this</span>.cache);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">&quot;RawCall.Factory required.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">&quot;Base URL required.&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="Retrofit对象的源头"><a href="#Retrofit对象的源头" class="headerlink" title="Retrofit对象的源头"></a>Retrofit对象的源头</h5><p>通过<code>Retrofit$Builder.build</code>调用栈追踪，定位到<code>com.sankuai.waimai.platform.capacity.network.retrofit.c.a(java.lang.Class): com.sankuai.meituan.retrofit2.Retrofit</code>方法</p>
+<p>该方法传入一个interface后返回Retrofit对象。从代码上来看它是全局保存的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Retrofit <span class="title">a</span><span class="params">(Class arg11)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 尝试从缓存中读取Retrofit对象</span></span><br><span class="line">    q v11 = (q)c.c.get(arg11);</span><br><span class="line">    <span class="keyword">if</span>(v11 == <span class="keyword">null</span>) &#123;</span><br><span class="line">        v11 = c.b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建Retrofit对象，最终调用到 Retrofit$Builder.build 和 Retrofit.create</span></span><br><span class="line">    <span class="keyword">return</span> (Retrofit)v11.c();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="Retrofit-create"><a href="#Retrofit-create" class="headerlink" title="Retrofit.create"></a>Retrofit.create</h5><p>Retrofit类的create方法传入一个interface，然后为这个interface实现代理类；也就是说Retrofit已经为这个接口创建好了request，等待外部调用即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Object <span class="title">create</span><span class="params">(Class arg13)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 校验arg13，必须是interface才行</span></span><br><span class="line">    Utils.validateServiceInterface(arg13);</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span>.validateEagerly) &#123;</span><br><span class="line">        <span class="comment">// 解析 interface 中声明的method（解析注解），并为方法创建代理</span></span><br><span class="line">        <span class="keyword">this</span>.eagerlyValidateMethods(arg13);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为 interface 创建代理类，并等待外部调用</span></span><br><span class="line">    <span class="keyword">return</span> Proxy.newProxyInstance(arg13.getClassLoader(), <span class="keyword">new</span> Class[]&#123;arg13&#125;, <span class="keyword">new</span> InvocationHandler() &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> ChangeQuickRedirect changeQuickRedirect;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">final</span> Platform platform;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">final</span> Retrofit <span class="keyword">this</span>$<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">final</span> Class val$service;</span><br><span class="line"></span><br><span class="line">        &#123;</span><br><span class="line">            Class arg2 = arg13;  <span class="comment">// captured argument (potential naming conflict with outer method variables - use N to rename)</span></span><br><span class="line">            <span class="keyword">this</span>.platform = Platform.get();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object arg12, Method arg13, Object[] arg14)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(arg13.getDeclaringClass() == Object.class) &#123;</span><br><span class="line">                <span class="keyword">return</span> arg13.invoke(<span class="keyword">this</span>, arg14);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">this</span>.platform.isDefaultMethod(arg13)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.platform.invokeDefaultMethod(arg13, arg13, arg12, arg14);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 解析 interface 中声明的 method（解析注解），并为 method 创建代理</span></span><br><span class="line">            ServiceMethod v12 = Retrofit.<span class="keyword">this</span>.loadServiceMethod(arg13);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 创建 ClientCall 对象并根据 method 的参数动态生成 request</span></span><br><span class="line">            <span class="keyword">return</span> v12.callAdapter.adapt(<span class="keyword">new</span> ClientCall(v12, arg14, Retrofit.<span class="keyword">this</span>.interceptors, Retrofit.defInterceptors, Retrofit.<span class="keyword">this</span>.httpExecutor, Retrofit.<span class="keyword">this</span>.cache));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="HomePageApi-interface"><a href="#HomePageApi-interface" class="headerlink" title="HomePageApi interface"></a>HomePageApi interface</h5><p>HomePageApi interface 是美团定义的，需要被Retrofit.create注册为动态代理类的interface，它的内部定义了一些method，当Retrofit注册完成后，就可以被外部所调用以完成request。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HomePageApi</span> </span>&#123;</span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST(&quot;v6/home/dynamic/tabs&quot;)</span></span><br><span class="line">    <span class="function">d <span class="title">getDynamicTabInfo</span><span class="params">(<span class="meta">@Field(&quot;last_time_actual_latitude&quot;)</span> String arg1, <span class="meta">@Field(&quot;last_time_actual_longitude&quot;)</span> String arg2)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST(&quot;v7/product/list&quot;)</span></span><br><span class="line">    <span class="function">d <span class="title">getFoodReunionPoilist</span><span class="params">(<span class="meta">@Field(&quot;page_index&quot;)</span> String arg1, <span class="meta">@Field(&quot;session_id&quot;)</span> String arg2, <span class="meta">@Field(&quot;rank_trace_id&quot;)</span> String arg3, <span class="meta">@Field(&quot;rank_list_id&quot;)</span> String arg4, <span class="meta">@Field(&quot;filter_tab_list&quot;)</span> String arg5, <span class="meta">@Field(&quot;behavioral_characteristics&quot;)</span> String arg6, <span class="meta">@Field(&quot;navigate_type&quot;)</span> <span class="keyword">long</span> arg7)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="comment">// 通过注解定义 url</span></span><br><span class="line">    <span class="meta">@POST(&quot;v7/poi/homepage&quot;)</span></span><br><span class="line">    <span class="function">d <span class="title">getHomePagePoiList</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        // getHomePagePoiList 的参数列表，当调用该参数时需要传入这些参数。</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;seq_num&quot;)</span> <span class="keyword">int</span> arg1,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;offset&quot;)</span> <span class="keyword">int</span> arg2,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;dynamic_page&quot;)</span> <span class="keyword">boolean</span> arg3,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;page_index&quot;)</span> <span class="keyword">long</span> arg4,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;page_size&quot;)</span> <span class="keyword">long</span> arg5,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;sort_type&quot;)</span> <span class="keyword">long</span> arg6,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;activity_filter_codes&quot;)</span> String arg7,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;slider_select_data&quot;)</span> String arg8,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;load_type&quot;)</span> <span class="keyword">int</span> arg9,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;rank_trace_id&quot;)</span> String arg10,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;session_id&quot;)</span> String arg11,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;union_id&quot;)</span> String arg12,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;rank_list_id&quot;)</span> String arg13,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;category_type&quot;)</span> <span class="keyword">int</span> arg14,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;second_category_type&quot;)</span> <span class="keyword">int</span> arg15,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="meta">@Field(&quot;behavioral_characteristics&quot;)</span> String arg16</span></span></span><br><span class="line"><span class="function"><span class="params">    )</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST(&quot;v7/product/recommend/entrance&quot;)</span></span><br><span class="line">    <span class="function">d <span class="title">getRecommendEntrance</span><span class="params">(<span class="meta">@FieldMap</span> Map arg1)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST(&quot;v6/poi/dynamicrecommend&quot;)</span></span><br><span class="line">    <span class="function">d <span class="title">getRecommendPoiCard</span><span class="params">(<span class="meta">@FieldMap</span> Map arg1)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST(&quot;v8/home/gettopbanner&quot;)</span></span><br><span class="line">    <span class="function">d <span class="title">getTopBanner</span><span class="params">(<span class="meta">@Field(&quot;topbanner_refresh_poi_ids&quot;)</span> String arg1, <span class="meta">@Field(&quot;topbanner_refresh_activity_ids&quot;)</span> String arg2)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST(&quot;v6/product/tag&quot;)</span></span><br><span class="line">    <span class="function">d <span class="title">optimizationFeedbackReport</span><span class="params">(<span class="meta">@Field(&quot;poi_id&quot;)</span> <span class="keyword">long</span> arg1, <span class="meta">@Field(&quot;tag_type&quot;)</span> <span class="keyword">int</span> arg2, <span class="meta">@Field(&quot;entry_id&quot;)</span> <span class="keyword">int</span> arg3, <span class="meta">@Field(&quot;reason_type&quot;)</span> <span class="keyword">int</span> arg4, <span class="meta">@Field(&quot;extend&quot;)</span> String arg5)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST(&quot;v6/product/tag&quot;)</span></span><br><span class="line">    <span class="function">d <span class="title">tagProduct</span><span class="params">(<span class="meta">@Field(&quot;poi_id&quot;)</span> <span class="keyword">long</span> arg1, <span class="meta">@Field(&quot;spu_id&quot;)</span> <span class="keyword">long</span> arg2, <span class="meta">@Field(&quot;dpc_id&quot;)</span> <span class="keyword">long</span> arg3, <span class="meta">@Field(&quot;tag_type&quot;)</span> <span class="keyword">int</span> arg4, <span class="meta">@Field(&quot;entry_id&quot;)</span> <span class="keyword">int</span> arg5, <span class="meta">@Field(&quot;reason_type&quot;)</span> <span class="keyword">int</span> arg6, <span class="meta">@Field(&quot;extend&quot;)</span> String arg7)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="ServiceMethod-类"><a href="#ServiceMethod-类" class="headerlink" title="ServiceMethod 类"></a>ServiceMethod 类</h4><p>ServiceMethod 类用来关联 interface method, 每个ServiceMethod对象关联一个interface method。</p>
+<p>通过ServiceMethod$Builder.build来创建ServiceMethod 对象。ServiceMethod 记录了url，请求类型，参数个数，参数类型等等request信息；最终由ClientCall使用ServiceMethod 对象生成和发送request。</p>
+<p>可以理解为一个interface method对应一个ServiceMethod；一个ServiceMethod对应一个request；</p>
+<p>生成逻辑：interface method生成ServiceMethod，ServiceMethod生成request。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> ServiceMethod <span class="title">build</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Type v4;</span><br><span class="line">    <span class="keyword">int</span> v2;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.callAdapter = <span class="keyword">this</span>.createCallAdapter();</span><br><span class="line">    <span class="keyword">this</span>.responseType = <span class="keyword">this</span>.callAdapter.responseType();</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span>.responseType != Response.class &amp;&amp; <span class="keyword">this</span>.responseType != RawResponse.class) &#123;</span><br><span class="line">        <span class="keyword">this</span>.responseConverter = <span class="keyword">this</span>.createResponseConverter();</span><br><span class="line">        Annotation[] v1 = <span class="keyword">this</span>.methodAnnotations;</span><br><span class="line">        <span class="keyword">int</span> v3;</span><br><span class="line">        <span class="keyword">for</span>(v3 = <span class="number">0</span>; v3 &lt; v1.length; ++v3) &#123;</span><br><span class="line">            <span class="comment">// 解析 method 的注解，可以解析出request.method request.url, request.params等等</span></span><br><span class="line">            <span class="keyword">this</span>.parseMethodAnnotation(v1[v3]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.httpMethod != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!<span class="keyword">this</span>.hasBody) &#123;</span><br><span class="line">                <span class="comment">// 这个request不包含body</span></span><br><span class="line">                <span class="keyword">if</span>(<span class="keyword">this</span>.isMultipart) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">this</span>.methodError(<span class="string">&quot;Multipart can only be specified on HTTP methods with request body (e.g., @POST).&quot;</span>, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span>(<span class="keyword">this</span>.isFormEncoded) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">this</span>.methodError(<span class="string">&quot;FormUrlEncoded can only be specified on HTTP methods with request body (e.g., @POST).&quot;</span>, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">this</span>.methodError(<span class="string">&quot;Multipart can only be specified on HTTP methods with request body (e.g., @POST).&quot;</span>, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// request.headers</span></span><br><span class="line">            <span class="keyword">this</span>.parameterHandlers = <span class="keyword">new</span> ParameterHandler[<span class="keyword">this</span>.parameterAnnotationsArray.length];</span><br><span class="line">            v2 = <span class="number">0</span>;</span><br><span class="line">            goto label_58;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">this</span>.methodError(<span class="string">&quot;HTTP method annotation is required (e.g., @GET, @POST, etc.).&quot;</span>, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">true</span>) &#123;</span><br><span class="line">        label_58:</span><br><span class="line">            <span class="comment">// 解析参数注解</span></span><br><span class="line">            <span class="keyword">if</span>(v2 &gt;= <span class="keyword">this</span>.parameterAnnotationsArray.length) &#123;</span><br><span class="line">                goto label_81;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            v4 = <span class="keyword">this</span>.parameterTypes[v2];</span><br><span class="line">            <span class="keyword">if</span>(Utils.hasUnresolvableType(v4)) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">this</span>.parameterError(v2, <span class="string">&quot;Parameter type must not include a type variable or wildcard: %s&quot;</span>, <span class="keyword">new</span> Object[]&#123;v4&#125;);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            Annotation[] v3_1 = <span class="keyword">this</span>.parameterAnnotationsArray[v2];</span><br><span class="line">            <span class="keyword">if</span>(v3_1 == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">this</span>.parameterError(v2, <span class="string">&quot;No Retrofit annotation found.&quot;</span>, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">this</span>.parameterHandlers[v2] = <span class="keyword">this</span>.parseParameter(v2, v4, v3_1);</span><br><span class="line">            ++v2;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">this</span>.parameterError(v2, <span class="string">&quot;No Retrofit annotation found.&quot;</span>, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">this</span>.parameterError(v2, <span class="string">&quot;Parameter type must not include a type variable or wildcard: %s&quot;</span>, <span class="keyword">new</span> Object[]&#123;v4&#125;);</span><br><span class="line">    label_81:</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.relativeUrl == <span class="keyword">null</span> &amp;&amp; !<span class="keyword">this</span>.gotUrl) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">this</span>.methodError(<span class="string">&quot;Missing either @%s URL or @Url parameter.&quot;</span>, <span class="keyword">new</span> Object[]&#123;<span class="keyword">this</span>.httpMethod&#125;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!<span class="keyword">this</span>.isFormEncoded &amp;&amp; !<span class="keyword">this</span>.isMultipart &amp;&amp; !<span class="keyword">this</span>.hasBody &amp;&amp; (<span class="keyword">this</span>.gotBody)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">this</span>.methodError(<span class="string">&quot;Non-body HTTP method cannot contain @Body.&quot;</span>, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>((<span class="keyword">this</span>.isFormEncoded) &amp;&amp; !<span class="keyword">this</span>.gotField) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">this</span>.methodError(<span class="string">&quot;Form-encoded method must contain at least one @Field.&quot;</span>, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>((<span class="keyword">this</span>.isMultipart) &amp;&amp; !<span class="keyword">this</span>.gotPart) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">this</span>.methodError(<span class="string">&quot;Multipart method must contain at least one @Part.&quot;</span>, <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ServiceMethod(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    StringBuilder v1_1 = <span class="keyword">new</span> StringBuilder(<span class="string">&quot;\&#x27;&quot;</span>);</span><br><span class="line">    v1_1.append(Utils.getRawType(<span class="keyword">this</span>.responseType).getName());</span><br><span class="line">    v1_1.append(<span class="string">&quot;\&#x27; is not a valid response body type. Did you mean ResponseBody?&quot;</span>);</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">this</span>.methodError(v1_1.toString(), <span class="keyword">new</span> Object[<span class="number">0</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="ClientCall-类"><a href="#ClientCall-类" class="headerlink" title="ClientCall 类"></a>ClientCall 类</h4><p>ClientCall对象由Retrofit生成的动态代理类创建，ClientCall用来生成okhttp.Request对象，并发送request。</p>
+<p>如果在Retrofit + okhttp的app中，ClientCall表示为<code>okhttp3.RealCall</code>；但是美团app的核心请求没有使用okhttp框架，而是自己实现的一套<code>ClientCall</code>代码；所以美团<code>ClientCall</code>的功能对标<code>okhttp3.RealCall</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 构造</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ClientCall</span><span class="params">(ServiceMethod arg19, Object[] arg20, List arg21, List arg22, Executor arg23, Cache arg24)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.convertElapse = -<span class="number">1L</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// interface method, serviceMethod</span></span><br><span class="line">    <span class="keyword">this</span>.serviceMethod = arg19;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// request.param</span></span><br><span class="line">    <span class="keyword">this</span>.args = arg20;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 拦截器</span></span><br><span class="line">    <span class="keyword">this</span>.clientInterceptors = arg21;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 默认拦截器</span></span><br><span class="line">    <span class="keyword">this</span>.defInterceptors = arg22;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 发送http请求的执行器</span></span><br><span class="line">    <span class="keyword">this</span>.httpExecutor = arg23;</span><br><span class="line">    <span class="keyword">this</span>.cache = arg24;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 执行请求，获取响应</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Response <span class="title">execute</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    Request v2;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">long</span> v0 = System.currentTimeMillis();</span><br><span class="line">    __monitor_enter(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.executed) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">&quot;Already executed.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.executed = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.creationFailure != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span>((<span class="keyword">this</span>.creationFailure <span class="keyword">instanceof</span> IOException)) &#123;</span><br><span class="line">                <span class="keyword">throw</span> (IOException)<span class="keyword">this</span>.creationFailure;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">throw</span> (RuntimeException)<span class="keyword">this</span>.creationFailure;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        v2 = <span class="keyword">this</span>.originalRequest;</span><br><span class="line">        <span class="keyword">if</span>(v2 == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// serviceMethod 生成 request</span></span><br><span class="line">                v2 = <span class="keyword">this</span>.serviceMethod.toRequest(<span class="keyword">this</span>.args);</span><br><span class="line">                <span class="keyword">this</span>.originalRequest = v2;</span><br><span class="line">                goto label_42;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span>(IOException | RuntimeException v0_2) &#123;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">this</span>.creationFailure = v0_2;</span><br><span class="line">            <span class="keyword">throw</span> v0_2;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    label_42:</span><br><span class="line">        __monitor_exit(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span>(Throwable v0_1) &#123;</span><br><span class="line">        goto label_67;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 进入拦截器链（对request进行签名，添加公共头，公共参数等等操作），发送请求，获得响应</span></span><br><span class="line">        Response v0_4 = <span class="keyword">this</span>.parseResponse(<span class="keyword">this</span>.getResponseWithInterceptorChain(v2.newBuilder().addHeader(<span class="string">&quot;retrofit_exec_time&quot;</span>, String.valueOf(v0)).build()));</span><br><span class="line">        Retrofit.RequestCallbackDispatcher.onSuccess(<span class="keyword">this</span>, <span class="keyword">this</span>.realRequest, v0_4, <span class="keyword">this</span>.convertElapse);</span><br><span class="line">        <span class="keyword">return</span> v0_4;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span>(Throwable v0_3) &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Retrofit.RequestCallbackDispatcher.onError(<span class="keyword">this</span>, <span class="keyword">this</span>.realRequest, v0_3);</span><br><span class="line">    <span class="keyword">throw</span> v0_3;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">&quot;Already executed.&quot;</span>);</span><br><span class="line">    label_67:</span><br><span class="line">        __monitor_exit(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span>(Throwable v0_1) &#123;</span><br><span class="line">        goto label_67;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">throw</span> v0_1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="总结与hook"><a href="#总结与hook" class="headerlink" title="总结与hook"></a>总结与hook</h3><p>我们现在需要调用<code>v7/poi/homepage</code>这个request，并拦截response。</p>
+<p>首先确定这个url 属于 HomePageApi.getHomePagePoiList interface method：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HomePageApi</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST(&quot;v7/poi/homepage&quot;)</span></span><br><span class="line">    <span class="function">d <span class="title">getHomePagePoiList</span><span class="params">(<span class="meta">@Field(&quot;seq_num&quot;)</span> <span class="keyword">int</span> arg1, <span class="meta">@Field(&quot;offset&quot;)</span> <span class="keyword">int</span> arg2, <span class="meta">@Field(&quot;dynamic_page&quot;)</span> <span class="keyword">boolean</span> arg3, <span class="meta">@Field(&quot;page_index&quot;)</span> <span class="keyword">long</span> arg4, <span class="meta">@Field(&quot;page_size&quot;)</span> <span class="keyword">long</span> arg5, <span class="meta">@Field(&quot;sort_type&quot;)</span> <span class="keyword">long</span> arg6, <span class="meta">@Field(&quot;activity_filter_codes&quot;)</span> String arg7, <span class="meta">@Field(&quot;slider_select_data&quot;)</span> String arg8, <span class="meta">@Field(&quot;load_type&quot;)</span> <span class="keyword">int</span> arg9, <span class="meta">@Field(&quot;rank_trace_id&quot;)</span> String arg10, <span class="meta">@Field(&quot;session_id&quot;)</span> String arg11, <span class="meta">@Field(&quot;union_id&quot;)</span> String arg12, <span class="meta">@Field(&quot;rank_list_id&quot;)</span> String arg13, <span class="meta">@Field(&quot;category_type&quot;)</span> <span class="keyword">int</span> arg14, <span class="meta">@Field(&quot;second_category_type&quot;)</span> <span class="keyword">int</span> arg15, <span class="meta">@Field(&quot;behavioral_characteristics&quot;)</span> String arg16)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>hook <code>com.sankuai.waimai.platform.capacity.network.retrofit.c.a(java.lang.Class)</code>方法，传入需要的interface后获取到全局唯一的Retrofit对象；使Retrofit框架为HomePageApi interface注册动态代理；</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> rObject = Java.use(<span class="string">&#x27;java.lang.Object&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> rThread = Java.use(<span class="string">&#x27;java.lang.Thread&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> rString = Java.use(<span class="string">&#x27;java.lang.String&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> rInteger = Java.use(<span class="string">&#x27;java.lang.Integer&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> rBoolean = Java.use(<span class="string">&#x27;java.lang.Boolean&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> rLong = Java.use(<span class="string">&#x27;java.lang.Long&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> rArray = Java.use(<span class="string">&#x27;java.lang.reflect.Array&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> rRetrofit = Java.use(<span class="string">&#x27;com.sankuai.meituan.retrofit2.Retrofit&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> rClientCall = Java.use(<span class="string">&#x27;com.sankuai.meituan.retrofit2.ClientCall&#x27;</span>);</span><br><span class="line"><span class="keyword">let</span> rRetrofit$Builder = Java.use(<span class="string">&#x27;com.sankuai.meituan.retrofit2.Retrofit$Builder&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 我们将retrofit.c类视为Retrofit的创建器，用来生成Retrofit对象</span></span><br><span class="line"><span class="keyword">let</span> rRetrofit$Creator = Java.use(<span class="string">&#x27;com.sankuai.waimai.platform.capacity.network.retrofit.c&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 我们需要注册HomePageApi这个interface</span></span><br><span class="line"><span class="keyword">let</span> rHomePageApi = Java.use(<span class="string">&#x27;com.sankuai.waimai.business.page.home.net.request.HomePageApi&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当类中的方法出现重载时，需要通过.overload().call()的方式来调用</span></span><br><span class="line"><span class="keyword">let</span> retrofit = rRetrofit$Creator.a.overload(<span class="string">&#x27;java.lang.Class&#x27;</span>).call(</span><br><span class="line">    <span class="comment">// .overload().call()的第一个参数必须时类本身，也可能时类对象本身，这个需要自己确定。</span></span><br><span class="line">    rRetrofit$Creator,</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 注册HomePageApi这个interface</span></span><br><span class="line">    rHomePageApi.class</span><br><span class="line">);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`retrofit: <span class="subst">$&#123;retrofit&#125;</span>`</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过getDeclaredMethods找到 rHomePageApi.getHomePagePoiList method</span></span><br><span class="line"><span class="keyword">let</span> methods = rHomePageApi.class.getDeclaredMethods();</span><br><span class="line"><span class="keyword">let</span> method;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; methods.length; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (methods[i].getName().indexOf(<span class="string">&#x27;getHomePagePoiList&#x27;</span>) !== -<span class="number">1</span>) &#123;</span><br><span class="line">        method = methods[i];</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">`method: <span class="subst">$&#123;method&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过retrofit对象和interface method生成ServiceMethod对象</span></span><br><span class="line"><span class="keyword">let</span> serviceMethod = retrofit.loadServiceMethod(method);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`serviceMethod: <span class="subst">$&#123;serviceMethod&#125;</span>`</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造 rHomePageApi.getHomePagePoiList 所需的参数</span></span><br><span class="line"><span class="comment">// 需要注意的是 frida 不能将javascrip中的类型自动转换为java中的基础数据类型。</span></span><br><span class="line"><span class="comment">// 例如javascript中的0和true不能自动转换到java中的int和boolean。</span></span><br><span class="line"><span class="comment">// 需要先Java.use数值类型，之后调用xxx.$new方法手动构造</span></span><br><span class="line"><span class="comment">// javascript中的字符串类型可以直接转到java中的java.lang.String类型，所以不需要手动构造</span></span><br><span class="line"><span class="keyword">let</span> params = Java.array(<span class="string">&#x27;java.lang.Object&#x27;</span>, [</span><br><span class="line">    rInteger.$new(<span class="number">0</span>),</span><br><span class="line">    rInteger.$new(<span class="number">0</span>),</span><br><span class="line">    rBoolean.$new(<span class="literal">true</span>),</span><br><span class="line">    rInteger.$new(<span class="number">0</span>),</span><br><span class="line">    rInteger.$new(<span class="number">20</span>),</span><br><span class="line">    rInteger.$new(<span class="number">0</span>),</span><br><span class="line">    <span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="string">&quot;&quot;</span>,</span><br><span class="line">    rInteger.$new(<span class="number">1</span>),</span><br><span class="line">    <span class="string">&quot;&quot;</span>,</span><br><span class="line">    <span class="string">&#x27;1884e2f6-0fd6-4254-9555-9e701faf1a771604177571387562&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;77c5243a18ca439c9e3eb05ee894707ea159474625289990347&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;9a44b234332e43a69a6bb06d6de1863a&#x27;</span>,</span><br><span class="line">    rInteger.$new(<span class="number">0</span>),</span><br><span class="line">    rInteger.$new(<span class="number">0</span>),</span><br><span class="line">    <span class="string">&#x27;&#x27;</span></span><br><span class="line">]);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`ary: <span class="subst">$&#123;params&#125;</span>, ary.length: <span class="subst">$&#123;params.length&#125;</span>`</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造ClientCall对象</span></span><br><span class="line"><span class="keyword">let</span> call = rClientCall.$new(serviceMethod, params, retrofit.interceptors.value, retrofit.defInterceptors.value, retrofit.httpExecutor.value, retrofit.cache.value);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`call: <span class="subst">$&#123;call&#125;</span>`</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用ClientCall.execute 执行request并获取response。</span></span><br><span class="line"><span class="keyword">let</span> response = call.execute();</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`response: <span class="subst">$&#123;response&#125;</span>`</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/31/frida-install/" rel="prev" title="frida install：安装frida">
+      <i class="fa fa-chevron-left"></i> frida install：安装frida
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/15/android-avb/" rel="next" title="android-avb">
+      android-avb <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%9E%90Retrofit%E6%A1%86%E6%9E%B6"><span class="nav-number">2.</span> <span class="nav-text">分析Retrofit框架</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Retrofit%E7%B1%BB"><span class="nav-number">2.1.</span> <span class="nav-text">Retrofit类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Retrofit-Builder"><span class="nav-number">2.1.1.</span> <span class="nav-text">Retrofit$Builder</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Retrofit%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%BA%90%E5%A4%B4"><span class="nav-number">2.1.2.</span> <span class="nav-text">Retrofit对象的源头</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Retrofit-create"><span class="nav-number">2.1.3.</span> <span class="nav-text">Retrofit.create</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#HomePageApi-interface"><span class="nav-number">2.1.4.</span> <span class="nav-text">HomePageApi interface</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ServiceMethod-%E7%B1%BB"><span class="nav-number">2.2.</span> <span class="nav-text">ServiceMethod 类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ClientCall-%E7%B1%BB"><span class="nav-number">2.3.</span> <span class="nav-text">ClientCall 类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%E4%B8%8Ehook"><span class="nav-number">3.</span> <span class="nav-text">总结与hook</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">MakeThings Team</p>
+  <div class="site-description" itemprop="description">皇上吃大饼，两面都蘸酱。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MakeThings Team</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
