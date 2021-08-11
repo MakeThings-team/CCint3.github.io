@@ -16,7 +16,11 @@ jobs:
       - name: Check
         run: |
           echo "secrets: ${{ secrets }}"
+          echo "secrets.TEST: ${{ secrets.TEST }}"
+          echo "secrets.testENV: ${{ secrets.testENV }}"
+          echo "secrets.TEST_PRIVATE ${{ secrets.TEST_PRIVATE }}"
           echo "env.TEST: ${{ env.TEST }}"
+          echo "env.testENV: ${{ env.testENV }}"
           echo "env.TEST_PRIVATE ${{ env.TEST_PRIVATE }}"
           echo "env.NODE_VERSION: ${{ env.NODE_VERSION }}"
           echo "pwd: $(pwd)"
