@@ -18,13 +18,7 @@ jobs:
           sec: ${{ secrets.TEST_PRIVATE }}
         run: |
           echo "sec: $sec"
-          echo "secrets: ${{ secrets }}"
-          echo "secrets.TEST: ${{ secrets.TEST }}"
-          echo "secrets.testENV: ${{ secrets.testENV }}"
+          echo "secrets.HEXO_DEPLOY_PRIVATE_KEY: ${{ secrets.HEXO_DEPLOY_PRIVATE_KEY }}"
           echo "secrets.HELLO: ${{ secrets.HELLO }}"
           echo "secrets.TEST_PRIVATE ${{ secrets.TEST_PRIVATE }}"
-          echo "env.TEST: ${{ env.TEST }}"
-          echo "env.testENV: ${{ env.testENV }}"
-          echo "env.TEST_PRIVATE ${{ env.TEST_PRIVATE }}"
-          echo "env.NODE_VERSION: ${{ env.NODE_VERSION }}"
           echo "pwd: $(pwd)"
