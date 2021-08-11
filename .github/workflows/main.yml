@@ -15,38 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '12'
-      - run: npm install hexo-cli -g
-      - run: npm install
-
-      - name: Check Binary
+      - name: Check
         run: |
           echo ${{ env.NODE_VERSION }}
           echo $(pwd)
           echo $(which npm)
           echo $(which node)
           echo $(which hexo)
-
-    
-      - name: Setup Deploy Private Key
-        env:
-          HEXO_DEPLOY_PRIVATE_KEY: ${{ secrets.my_key }}
-        run: |
-          echo $(pwd)
-          echo "$HEXO_DEPLOY_PRIVATE_KEY"
-          mkdir -p ~/.ssh/
-          echo "$HEXO_DEPLOY_PRIVATE_KEY" > ~/.ssh/id_rsa 
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-      - name: Setup Git Infomation
-        run: | 
-          git config --global user.name 'ZhanWenpeng' 
-          git config --global user.email ''
-      - name: Deploy Hexo 
-        run: |
-          hexo clean
-          hexo generate 
-          hexo deploy
