@@ -13,10 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-
       - name: Check
         run: |
           echo "secrets: ${{ secrets }}"
+          echo "env.TEST ${{ env.TEST }}"
           echo "env.NODE_VERSION: ${{ env.NODE_VERSION }}"
           echo "pwd: $(pwd)"
