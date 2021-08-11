@@ -14,12 +14,9 @@ jobs:
 
     steps:
       - name: Check
-        environment:
-          name: testENV
         env:
           REPO_TEST: ${{ secrets.REPO_TEST }}
         run: |
-          echo "env.ENV_TEST: ${{ env.ENV_TEST }}"
           if [[ "$REPO_TEST" == "***" ]]; then
             echo "- is ***"
           fi
@@ -27,7 +24,8 @@ jobs:
             echo "+ is HELLO"
           fi
           echo "REPO_TEST: $REPO_TEST"
-          echo "secrets.ENV_TEST: ${{ secrets.ENV_TEST }}"
+          echo "secrets.testENV: ${{ secrets.testENV }}"
+          echo "secrets.testENV.ENV_TEST: ${{ secrets.testENV.ENV_TEST }}"
           echo "secrets.ORG_TEST: ${{ secrets.ORG_TEST }}"
           echo "secrets.REPO_TEST: ${{ secrets.REPO_TEST }}"
 
