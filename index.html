@@ -119,7 +119,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -169,6 +169,239 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://ccint3.com/2021/08/12/pixel-sailfish-android10-manual-root/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="MakeThings Team">
+      <meta itemprop="description" content="皇上吃大饼，两面都蘸酱。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeThings Team'Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/08/12/pixel-sailfish-android10-manual-root/" class="post-title-link" itemprop="url">Pixel(sailfish) android 10 手动 root</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-08-12 16:52:53 / 修改时间：17:50:53" itemprop="dateCreated datePublished" datetime="2021-08-12T16:52:53+08:00">2021-08-12</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h4 id="需要"><a href="#需要" class="headerlink" title="需要"></a>需要</h4><ul>
+<li>android 10 ROM：<a target="_blank" rel="noopener" href="https://dl.google.com/dl/android/aosp/sailfish-qp1a.191005.007.a3-factory-d4552659.zip">Android 10.0.0 (QP1A.191005.007.A3, Dec 2019)</a></li>
+<li>simg2img: <code>Android sparse image</code>转<code>Linux image</code>；用来将system.img, vendor.img转为可挂载的image</li>
+<li>img2simg: <code>Linux image</code>转<code>Android sparse image</code>；将可挂载的image转为可刷写的image</li>
+<li>X-Ways Forensics: 以16进制编辑文件内容，并支持ext4文件系统格式挂载系统映像文件</li>
+<li>IDA Pro：反汇编支持</li>
+<li>ARM 架构参考手册：汇编指令支持</li>
+<li>mount, umount：挂载和卸载指定分区</li>
+</ul>
+<h4 id="解压谷歌官方映像压缩包"><a href="#解压谷歌官方映像压缩包" class="headerlink" title="解压谷歌官方映像压缩包"></a>解压谷歌官方映像压缩包</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">pwd</span></span></span><br><span class="line">/home/ccint3/Desktop</span><br><span class="line"><span class="meta">$</span><span class="bash"> tree sailfish</span></span><br><span class="line">sailfish  # 根目录，将谷歌官方镜像压缩包存放至该目录中</span><br><span class="line">├── sailfish-qp1a.191005.007.a3-factory-d4552659  # 解压谷歌官方镜像压缩包后得到的目录</span><br><span class="line">│   └── sailfish-qp1a.191005.007.a3  # 解压谷歌官方镜像压缩包后得到的目录</span><br><span class="line">│       ├── bootloader-sailfish-8996-012001-1908071822.img  # bootloader image 文件</span><br><span class="line">│       ├── flash-all.bat  # windows刷机脚本</span><br><span class="line">│       ├── flash-all.sh   # linux刷机脚本</span><br><span class="line">│       ├── flash-base.sh  # 刷机脚本，只刷bootloader和基带</span><br><span class="line">│       ├── image-sailfish-qp1a.191005.007.a3  # 解压image压缩包得到的目录</span><br><span class="line">│       │   ├── android-info.txt  # 描述文件，描述当前目录下的image适用于那种设备和基带版本要求</span><br><span class="line">│       │   ├── boot.img  # boot image，包含内核以及recovery分区（android Q及以上版本将boot中的root分区移动至了system.img中）</span><br><span class="line">│       │   ├── system.img  # 包含system分区以及root分区 + avb校验元数据</span><br><span class="line">│       │   ├── system_other.img  # 附属的system分区内容（其中的数据不是非常重要）</span><br><span class="line">│       │   └── vendor.img  # 包含vendor分区 + avb校验元数据</span><br><span class="line">│       ├── image-sailfish-qp1a.191005.007.a3.zip  # image压缩包，包含system和vendor image</span><br><span class="line">│       └── radio-sailfish-8996-130361-1905270421.img  ## 基带 image 文件</span><br><span class="line">└── sailfish-qp1a.191005.007.a3-factory-d4552659.zip  # 谷歌官方镜像压缩包</span><br><span class="line"></span><br><span class="line">3 directories, 12 files</span><br></pre></td></tr></table></figure>
+
+
+
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">pwd</span></span></span><br><span class="line">/home/ccint3/Desktop/sailfish/sailfish-qp1a.191005.007.a3-factory-d4552659/sailfish-qp1a.191005.007.a3/image-sailfish-qp1a.191005.007.a3</span><br><span class="line"><span class="meta">$</span><span class="bash"> tree</span></span><br><span class="line">.</span><br><span class="line">├── android-info.txt</span><br><span class="line">├── boot.img</span><br><span class="line">├── system.img</span><br><span class="line">├── system_other.img</span><br><span class="line">└── vendor.img</span><br><span class="line"></span><br><span class="line">0 directories, 5 files</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="关闭avb"><a href="#关闭avb" class="headerlink" title="关闭avb"></a>关闭avb</h4><p><a target="_blank" rel="noopener" href="https://source.android.com/security/verifiedboot?hl=zh-cn">Android 启动时验证</a></p>
+<p>该功能是为了防止恶意程序对系统映像文件的恶意修改，它对系统映像文件进行每4kb字节的数据生成校验值，最后将avb metadata附加到系统映像文件的结尾，一同刷写进android设备。android设备启动时，会对avb metadata进行校验。</p>
+<p>实现流程：</p>
+<ol>
+<li>选择一个随机盐（十六进制编码）</li>
+<li>将系统映像拆分成 4k 大小的块</li>
+<li>获取每个块的加盐 SHA256 哈希</li>
+<li>组合这些哈希以形成层</li>
+<li>在层中填充 0，直至达到 4k 块的边界</li>
+<li>将层组合到哈希树中</li>
+<li>重复第 2-6 步（使用前一层作为下一层的来源），直到最后只有一个哈希</li>
+</ol>
+<p>该过程的结果是一个哈希，也就是根哈希。在构建 dm-verity 映射表时会用到该哈希和您选择的盐</p>
+<p><img src="https://source.android.com/security/images/dm-verity-hash-table.png" alt="dm-verity hash table"></p>
+<p>如果不关闭avb功能，对分区的修改会无法生效 或者 导致设备bootloop。</p>
+<p>例如对分区中的某个文件进行了修改，重新刷写并重启后发现该文件的内容并未发生任何变化，这是因为android7以上开启了<a target="_blank" rel="noopener" href="https://source.android.com/security/verifiedboot/dm-verity?hl=zh-cn#fec">FEC向前纠错</a>功能，简而言之该功能对系统的文件有简单的修复功能。另外如果设备bootloop，那么说明FEC向前纠错无法对更改的文件进行纠错，那么就会进入bootloop。</p>
+<p>avb metadata头部的magic number可以控制avb是否生效。通过修改avb metadata magic number可以关闭avb功能；</p>
+<p>校验元数据Magic number的定义如下：</p>
+<p><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/fs_mgr/include/fs_mgr.h#30">#define VERITY_METADATA_MAGIC_NUMBER 0xb001b001</a></p>
+<p><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/system/core/+/refs/tags/android-10.0.0_r17/fs_mgr/include/fs_mgr.h#34">#define VERITY_METADATA_MAGIC_DISABLE 0x46464f56 // “VOFF”</a></p>
+<p>Verity结构</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+<th>大小</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>magic number</td>
+<td>供 fs_mgr 用作一个健全性检查项目</td>
+<td>4 bytes</td>
+<td>0xb001b001</td>
+</tr>
+<tr>
+<td>version</td>
+<td>用于为Verity数据块添加版本号</td>
+<td>4 bytes</td>
+<td>android 10为0</td>
+</tr>
+<tr>
+<td>signature</td>
+<td>PKCS1.5 填充形式的表签名</td>
+<td>256 bytes</td>
+<td></td>
+</tr>
+<tr>
+<td>table length</td>
+<td>dm-verity 表的长度（以字节数计）</td>
+<td>4 bytes</td>
+<td></td>
+</tr>
+<tr>
+<td>table</td>
+<td>上文介绍的 dm-verity 表</td>
+<td>table length bytes</td>
+<td></td>
+</tr>
+<tr>
+<td>padding</td>
+<td>此结构会通过填充 0 达到 32k 长度</td>
+<td></td>
+<td>0</td>
+</tr>
+</tbody></table>
+<h5 id="关闭android-8以下的avb："><a href="#关闭android-8以下的avb：" class="headerlink" title="关闭android 8以下的avb："></a>关闭android 8以下的avb：</h5><p>在<code>android 8(包含)</code>以下可以直接修改<code>boot.img/fstab.sailfish</code>文件，删除其中的<code>verity</code>字段即可；这是因为boot.img中的root分区并没有被avb保护，所以可以直接修改root分区中的文件后重新打包root分区到boot.img中进行刷写。</p>
+<h5 id="关闭android-10的avb："><a href="#关闭android-10的avb：" class="headerlink" title="关闭android 10的avb："></a>关闭android 10的avb：</h5><p>在<code>android 10(包含)</code>以上boot.img中的root分区被移动到system.img中，因此修改boot.img并不能影响到root分区。因此需要通过以下的方式关闭</p>
+<ol>
+<li><p>重命名</p>
+<p>将<code>system.img</code>和<code>vendor.img</code>分别命名为<code>system.img.org</code>和<code>vendor.img.org</code>以备份</p>
+</li>
+<li><p>android sparse image转linux image</p>
+<p>使用simg2img将<code>system.img.org</code>和<code>vendor.img.org</code>分别转为<code>system.img.raw</code>和<code>vendor.img.raw</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> simg2img system.img.org system.img.raw</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> simg2img vendor.img.org vendor.img.raw</span></span><br></pre></td></tr></table></figure></li>
+<li><p>修改avb校验元数据Magic Number</p>
+<p>使用16进制编辑器<code>X-Ways Forensics</code>分别修改<code>system.img.raw</code>和<code>vendor.img.raw</code>中的校验元数据，将<code>0xb001b001</code>修改为<code>0x46464f56</code>；</p>
+<p>搜索16进制字符串<code>01B001B000000000</code>定位到校验元数据头Magic number的位置</p>
+<ul>
+<li><p>修改system.img.raw，偏移：<code>0x7EFE5000</code></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.avbmeta.magic.enabled.png" alt="system.img.raw avbmeta magic enabled"></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/system.img.raw.avbmeta.magic.disabled.png" alt="system.img.raw avbmeta magic disabled"></p>
+</li>
+<li><p>修改vendor.img.raw，偏移：<code>0x1299b000</code></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.avbmeta.magic.enabled.png" alt="vendor.img.raw avbmeta magic enabled"></p>
+<p><img src="https://raw.githubusercontent.com/MakeThings-team/picgo-library/main/modify-android-q-for-sailfish/vendor.img.raw.avbmeta.magic.disabled.png" alt="vendor.img.raw avbmeta magic disabled"></p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="关闭-EXT4-FEATURE-RO-COMPAT-SHARED-BLOCKS"><a href="#关闭-EXT4-FEATURE-RO-COMPAT-SHARED-BLOCKS" class="headerlink" title="关闭 EXT4_FEATURE_RO_COMPAT_SHARED_BLOCKS"></a>关闭 EXT4_FEATURE_RO_COMPAT_SHARED_BLOCKS</h4><p>该功能会导致android 10以上的系统映像文件在ubuntu等系统上只能被挂载为只读模式。</p>
+<p>关闭该功能是通过修改映像文件中的<code>Superblock</code>结构体来实现的。关闭该功能后虽然可挂载为可读写模式，但是不要试图去删除映像中的文件，这是因为该功能类似于通过引用计数的技术来共享公共文件，如果删除了某个被引用到的文件，那么需要额外的修复它的引用计数。但是不影响修改文件和新增文件。</p>
+<p>以system.img.raw举例，superblock结构体的起始位置位于该文件0x400的位置。我们需要修改<code>superblock.s_feature_ro_compat</code>位置的4bytes数据，那么文件偏移为<code>0x400 + 0x64 = 0x464</code>；下面通过一段python代码展示如何关闭它</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> io <span class="keyword">import</span> SEEK_SET</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span></span><br><span class="line">    image = <span class="built_in">open</span>(<span class="string">&#x27;system.img.raw&#x27;</span>, <span class="string">&#x27;rb+&#x27;</span>)</span><br><span class="line">    image.seek(<span class="number">0x464</span>, SEEK_SET)</span><br><span class="line">    s_feature_ro_compat = <span class="built_in">int</span>.from_bytes(image.read(<span class="number">4</span>), byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;old s_feature_ro_compat: 0x%08X&#x27;</span> % s_feature_ro_compat)</span><br><span class="line">    <span class="keyword">if</span> s_feature_ro_compat &amp; <span class="number">0x4000</span>:</span><br><span class="line">        s_feature_ro_compat = s_feature_ro_compat ^ <span class="number">0x4000</span></span><br><span class="line">    image.seek(<span class="number">0x464</span>, SEEK_SET)</span><br><span class="line">    image.write(s_feature_ro_compat.to_bytes(<span class="number">4</span>, byteorder=<span class="string">&#x27;little&#x27;</span>))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;new s_feature_ro_compat: 0x%08X&#x27;</span> % s_feature_ro_compat)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="向selinux中注入策略"><a href="#向selinux中注入策略" class="headerlink" title="向selinux中注入策略"></a>向selinux中注入策略</h4><p>google提供的官方系统映像中selinux策略文件被保存在<code>vendor/etc/selinux/precompiled_sepolicy</code>文件中，该文件是经过<code>*.te</code>使用宏扩展为<code>*.cil</code>文件后再由selinux策略编译器生成的最终binary文件。因此我们直接向该文件中注入一些策略即可影响到操作系统的selinux。</p>
+<p><a target="_blank" rel="noopener" href="https://topjohnwu.github.io/Magisk/tools.html#magiskpolicy">magiskpolicy</a>：该工具是Magisk工程中提供的一个小工具，它可以读取<code>cli</code>或者<code>selinux binary</code>并向其中注入自定义domain，因此从 Magisk 守护进程产生的所有进程，包括 root shell 及其所有分支，都在上下文 <code>u:r:magisk:s0</code> 中运行，以此来实现Magisk su。</p>
+<p>那么我们可以使用该工具向<code>vendor/etc/selinux/precompiled_sepolicy</code>中注入我们自定义的domain；通过修改<a target="_blank" rel="noopener" href="https://github.com/topjohnwu/Magisk/blob/master/native/jni/utils/include/selinux.hpp">selinux.hpp</a>中的几个宏即可自定义domain名称，当然这一步不是必须的。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Unconstrained domain the daemon and root processes run in</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SEPOL_PROC_DOMAIN   <span class="meta-string">&quot;magisk&quot;</span></span></span><br><span class="line"><span class="comment">// Highly constrained domain, sole purpose is to connect to daemon</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SEPOL_CLIENT_DOMAIN <span class="meta-string">&quot;magisk_client&quot;</span></span></span><br><span class="line"><span class="comment">// Unconstrained file type that anyone can access</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SEPOL_FILE_TYPE     <span class="meta-string">&quot;magisk_file&quot;</span></span></span><br><span class="line"><span class="comment">// Special file type to allow clients to transit to client domain automatically</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SEPOL_EXEC_TYPE     <span class="meta-string">&quot;magisk_exec&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果上一步中修改了domain，那么需要重新编译magiskpolicy工具，并执行以下命令使magiskpolicy向目标binary中注入<code>SEPOL_PROC_DOMAIN domain</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ adb push magiskpolicy /data/<span class="built_in">local</span>/tmp/magiskpolicy</span><br><span class="line">$ adb shell chmod a+x /data/<span class="built_in">local</span>/tmp/magiskpolicy</span><br><span class="line">$ adb shell /data/<span class="built_in">local</span>/tmp/magiskpolicy --magisk --load-split --save /sdcard/magisk.sepolicy</span><br><span class="line">$ adb pull /sdcard/magisk.sepolicy magisk.sepolicy</span><br></pre></td></tr></table></figure>
+
+
+
+<p>得到<code>magisk.sepolicy</code>文件之后，挂载vendor.img.raw为可读写模式，并替换<code>vendor/etc/selinux/precompiled_sepolicy</code>文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir ./vendor</span><br><span class="line">$ sudo mount vendor.img.raw ./vendor</span><br><span class="line">$ cp magisk.sepolicy ./vendor/etc/selinux/precompiled_sepolicy</span><br><span class="line">$ sudo umount ./vendor</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="adbd修改"><a href="#adbd修改" class="headerlink" title="adbd修改"></a>adbd修改</h4><p>上一步中我们向selinux环境中注入了自定义的context以此来达到可以创建拥有<code>root</code>权限的进程。</p>
+<h5 id="adbd-root"><a href="#adbd-root" class="headerlink" title="adbd root"></a>adbd root</h5><p>adbd root有多种方式：patch adbd binary、修改aosp源码</p>
+<p>其中patch adbd binary的方式在另外一篇文章中已经讲过，这里主要讲一下修改aosp源码的方式</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line">project system/core/</span><br><span class="line"><span class="comment">diff --git a/adb/daemon/main.cpp b/adb/daemon/main.cpp</span></span><br><span class="line"><span class="comment">index 620d078..a23e127 100644</span></span><br><span class="line"><span class="comment">--- a/adb/daemon/main.cpp</span></span><br><span class="line"><span class="comment">+++ b/adb/daemon/main.cpp</span></span><br><span class="line"><span class="meta">@@ -62,16 +62,17 @@</span> static inline bool is_device_unlocked() &#123;</span><br><span class="line">     return &quot;orange&quot; == android::base::GetProperty(&quot;ro.boot.verifiedbootstate&quot;, &quot;&quot;);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"><span class="deletion">-static bool should_drop_capabilities_bounding_set() &#123;</span></span><br><span class="line"><span class="deletion">-    if (ALLOW_ADBD_ROOT || is_device_unlocked()) &#123;</span></span><br><span class="line"><span class="deletion">-        if (__android_log_is_debuggable()) &#123;</span></span><br><span class="line"><span class="deletion">-            return false;</span></span><br><span class="line"><span class="deletion">-        &#125;</span></span><br><span class="line"><span class="deletion">-    &#125;</span></span><br><span class="line"><span class="deletion">-    return true;</span></span><br><span class="line"><span class="deletion">-&#125;</span></span><br><span class="line"><span class="addition">+//static bool should_drop_capabilities_bounding_set() &#123;</span></span><br><span class="line"><span class="addition">+//    if (ALLOW_ADBD_ROOT || is_device_unlocked()) &#123;</span></span><br><span class="line"><span class="addition">+//        if (__android_log_is_debuggable()) &#123;</span></span><br><span class="line"><span class="addition">+//            return false;</span></span><br><span class="line"><span class="addition">+//        &#125;</span></span><br><span class="line"><span class="addition">+//    &#125;</span></span><br><span class="line"><span class="addition">+//    return true;</span></span><br><span class="line"><span class="addition">+//&#125;</span></span><br><span class="line"></span><br><span class="line"> static bool should_drop_privileges() &#123;</span><br><span class="line"><span class="addition">+    return false;</span></span><br><span class="line">     // &quot;adb root&quot; not allowed, always drop privileges.</span><br><span class="line">     if (!ALLOW_ADBD_ROOT &amp;&amp; !is_device_unlocked()) return true;</span><br><span class="line"></span><br><span class="line"><span class="meta">@@ -128,46 +129,47 @@</span> static void drop_privileges(int server_port) &#123;</span><br><span class="line">     // Don&#x27;t listen on a port (default 5037) if running in secure mode.</span><br><span class="line">     // Don&#x27;t run as root if running in secure mode.</span><br><span class="line">     if (should_drop_privileges()) &#123;</span><br><span class="line"><span class="deletion">-        const bool should_drop_caps = should_drop_capabilities_bounding_set();</span></span><br><span class="line"><span class="addition">+        //const bool should_drop_caps = should_drop_capabilities_bounding_set();</span></span><br><span class="line"></span><br><span class="line"><span class="deletion">-        if (should_drop_caps) &#123;</span></span><br><span class="line"><span class="deletion">-            minijail_use_caps(jail.get(), CAP_TO_MASK(CAP_SETUID) | CAP_TO_MASK(CAP_SETGID));</span></span><br><span class="line"><span class="deletion">-        &#125;</span></span><br><span class="line"><span class="addition">+        //if (should_drop_caps) &#123;</span></span><br><span class="line"><span class="addition">+        //    minijail_use_caps(jail.get(), CAP_TO_MASK(CAP_SETUID) | CAP_TO_MASK(CAP_SETGID));</span></span><br><span class="line"><span class="addition">+        //&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="deletion">-        minijail_change_gid(jail.get(), AID_SHELL);</span></span><br><span class="line"><span class="deletion">-        minijail_change_uid(jail.get(), AID_SHELL);</span></span><br><span class="line"><span class="addition">+        //minijail_change_gid(jail.get(), AID_SHELL);</span></span><br><span class="line"><span class="addition">+        //minijail_change_uid(jail.get(), AID_SHELL);</span></span><br><span class="line">         // minijail_enter() will abort if any priv-dropping step fails.</span><br><span class="line"><span class="deletion">-        minijail_enter(jail.get());</span></span><br><span class="line"><span class="addition">+        //minijail_enter(jail.get());</span></span><br><span class="line"></span><br><span class="line">         // Whenever ambient capabilities are being used, minijail cannot</span><br><span class="line">         // simultaneously drop the bounding capability set to just</span><br><span class="line">         // CAP_SETUID|CAP_SETGID while clearing the inheritable, effective,</span><br><span class="line">         // and permitted sets. So we need to do that in two steps.</span><br><span class="line"><span class="deletion">-        using ScopedCaps =</span></span><br><span class="line"><span class="deletion">-            std::unique_ptr&lt;std::remove_pointer&lt;cap_t&gt;::type, std::function&lt;void(cap_t)&gt;&gt;;</span></span><br><span class="line"><span class="deletion">-        ScopedCaps caps(cap_get_proc(), &amp;cap_free);</span></span><br><span class="line"><span class="deletion">-        if (cap_clear_flag(caps.get(), CAP_INHERITABLE) == -1) &#123;</span></span><br><span class="line"><span class="deletion">-            PLOG(FATAL) &lt;&lt; &quot;cap_clear_flag(INHERITABLE) failed&quot;;</span></span><br><span class="line"><span class="deletion">-        &#125;</span></span><br><span class="line"><span class="deletion">-        if (cap_clear_flag(caps.get(), CAP_EFFECTIVE) == -1) &#123;</span></span><br><span class="line"><span class="deletion">-            PLOG(FATAL) &lt;&lt; &quot;cap_clear_flag(PEMITTED) failed&quot;;</span></span><br><span class="line"><span class="deletion">-        &#125;</span></span><br><span class="line"><span class="deletion">-        if (cap_clear_flag(caps.get(), CAP_PERMITTED) == -1) &#123;</span></span><br><span class="line"><span class="deletion">-            PLOG(FATAL) &lt;&lt; &quot;cap_clear_flag(PEMITTED) failed&quot;;</span></span><br><span class="line"><span class="deletion">-        &#125;</span></span><br><span class="line"><span class="deletion">-        if (cap_set_proc(caps.get()) != 0) &#123;</span></span><br><span class="line"><span class="deletion">-            PLOG(FATAL) &lt;&lt; &quot;cap_set_proc() failed&quot;;</span></span><br><span class="line"><span class="deletion">-        &#125;</span></span><br><span class="line"><span class="deletion">-</span></span><br><span class="line"><span class="deletion">-        D(&quot;Local port disabled&quot;);</span></span><br><span class="line"><span class="addition">+        //using ScopedCaps =</span></span><br><span class="line"><span class="addition">+        //    std::unique_ptr&lt;std::remove_pointer&lt;cap_t&gt;::type, std::function&lt;void(cap_t)&gt;&gt;;</span></span><br><span class="line"><span class="addition">+        //ScopedCaps caps(cap_get_proc(), &amp;cap_free);</span></span><br><span class="line"><span class="addition">+        //if (cap_clear_flag(caps.get(), CAP_INHERITABLE) == -1) &#123;</span></span><br><span class="line"><span class="addition">+        //    PLOG(FATAL) &lt;&lt; &quot;cap_clear_flag(INHERITABLE) failed&quot;;</span></span><br><span class="line"><span class="addition">+        //&#125;</span></span><br><span class="line"><span class="addition">+        //if (cap_clear_flag(caps.get(), CAP_EFFECTIVE) == -1) &#123;</span></span><br><span class="line"><span class="addition">+        //    PLOG(FATAL) &lt;&lt; &quot;cap_clear_flag(PEMITTED) failed&quot;;</span></span><br><span class="line"><span class="addition">+        //&#125;</span></span><br><span class="line"><span class="addition">+        //if (cap_clear_flag(caps.get(), CAP_PERMITTED) == -1) &#123;</span></span><br><span class="line"><span class="addition">+        //    PLOG(FATAL) &lt;&lt; &quot;cap_clear_flag(PEMITTED) failed&quot;;</span></span><br><span class="line"><span class="addition">+        //&#125;</span></span><br><span class="line"><span class="addition">+        //if (cap_set_proc(caps.get()) != 0) &#123;</span></span><br><span class="line"><span class="addition">+        //    PLOG(FATAL) &lt;&lt; &quot;cap_set_proc() failed&quot;;</span></span><br><span class="line"><span class="addition">+        //&#125;</span></span><br><span class="line"><span class="addition">+</span></span><br><span class="line"><span class="addition">+        //D(&quot;Local port disabled&quot;);</span></span><br><span class="line">     &#125; else &#123;</span><br><span class="line">         // minijail_enter() will abort if any priv-dropping step fails.</span><br><span class="line">         minijail_enter(jail.get());</span><br><span class="line"></span><br><span class="line">         if (root_seclabel != nullptr) &#123;</span><br><span class="line"><span class="addition">+            D(&quot;root_seclabel: %s&quot;, root_seclabel);</span></span><br><span class="line">             if (selinux_android_setcon(root_seclabel) &lt; 0) &#123;</span><br><span class="line">                 LOG(FATAL) &lt;&lt; &quot;Could not set SELinux context&quot;;</span><br><span class="line"><span class="deletion">-            &#125;</span></span><br><span class="line"><span class="addition">+           &#125;</span></span><br><span class="line">         &#125;</span><br><span class="line">         std::string error;</span><br><span class="line">         std::string local_name =</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="adbd-取消认证"><a href="#adbd-取消认证" class="headerlink" title="adbd 取消认证"></a>adbd 取消认证</h5><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">diff --git a/adb/daemon/main.cpp b/adb/daemon/main.cpp</span></span><br><span class="line"><span class="comment">index 72bad5f..79b1780 100644</span></span><br><span class="line"><span class="comment">--- a/adb/daemon/main.cpp</span></span><br><span class="line"><span class="comment">+++ b/adb/daemon/main.cpp</span></span><br><span class="line"><span class="meta">@@ -208,12 +208,13 @@</span> int adbd_main(int server_port) &#123;</span><br><span class="line"></span><br><span class="line"> #if defined(ALLOW_ADBD_NO_AUTH)</span><br><span class="line">     // If ro.adb.secure is unset, default to no authentication required.</span><br><span class="line"><span class="deletion">-    auth_required = android::base::GetBoolProperty(&quot;ro.adb.secure&quot;, false);</span></span><br><span class="line"><span class="addition">+    //auth_required = android::base::GetBoolProperty(&quot;ro.adb.secure&quot;, false);</span></span><br><span class="line"> #elif defined(__ANDROID__)</span><br><span class="line"><span class="deletion">-    if (is_device_unlocked()) &#123;  // allows no authentication when the device is unlocked.</span></span><br><span class="line"><span class="deletion">-        auth_required = android::base::GetBoolProperty(&quot;ro.adb.secure&quot;, false);</span></span><br><span class="line"><span class="deletion">-    &#125;</span></span><br><span class="line"><span class="addition">+    //if (is_device_unlocked()) &#123;  // allows no authentication when the device is unlocked.</span></span><br><span class="line"><span class="addition">+    //    auth_required = android::base::GetBoolProperty(&quot;ro.adb.secure&quot;, false);</span></span><br><span class="line"><span class="addition">+    //&#125;</span></span><br><span class="line"> #endif</span><br><span class="line"><span class="addition">+    auth_required = false;</span></span><br><span class="line"></span><br><span class="line">     adbd_auth_init();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="应用adbd修改"><a href="#应用adbd修改" class="headerlink" title="应用adbd修改"></a>应用adbd修改</h5><p>重新编译adbd之后需要挂载system.img.raw为可读写模式并将系统映像中的adbd替换掉</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir system</span><br><span class="line">$ sudo mount system.img.raw system</span><br><span class="line">$ cp adbd ./system/system/bin/adbd</span><br><span class="line">$ sudo umount system</span><br></pre></td></tr></table></figure>
+
+
+
+<p>init 在启动adbd时使用的selinux context是<code>u:r:adbd:s0</code>，再经过selinux_android_setcon函数将context切换到<code>u:r:su:s0</code>；因为我们是向sepolicy中注入了自定的domain，因此我们需要将 <code>u:r:magisk:s0</code> 应用至 <code>system.img.raw/init.usb.rc</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir system</span><br><span class="line">$ sudo mount system.img.raw system</span><br><span class="line">$ vim ./system/init.usb.rc</span><br><span class="line">$ sudo umount system</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># adbd is controlled via property triggers in init.&lt;platform&gt;.usb.rc</span></span><br><span class="line">service adbd /system/bin/adbd --root_seclabel=u:r:magisk:s0</span><br><span class="line">    <span class="built_in">class</span> core</span><br><span class="line">    socket adbd seqpacket <span class="number">660</span> system system</span><br><span class="line">    disabled</span><br><span class="line">    seclabel u:r:magisk:s0</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="adbd开机启动"><a href="#adbd开机启动" class="headerlink" title="adbd开机启动"></a>adbd开机启动</h5><p>修改<code>init.usb.rc</code>，在<code>on boot</code>阶段加入<code>persist.sys.usb.config adb</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir system</span><br><span class="line">$ sudo mount system.img.raw system</span><br><span class="line">$ vim ./system/init.usb.rc</span><br><span class="line">$ sudo umount system</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">on boot</span><br><span class="line">    setprop sys.usb.configfs <span class="number">0</span></span><br><span class="line">    setprop persist.sys.usb.config adb</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="刷写修改后的系统映像"><a href="#刷写修改后的系统映像" class="headerlink" title="刷写修改后的系统映像"></a>刷写修改后的系统映像</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ img2simg system.img.raw system.new.img</span><br><span class="line">$ img2sigm vendor.img.raw vendor.new.img</span><br><span class="line">$ adb reboot bootloader</span><br><span class="line">$ fastboot flash system system.new.img</span><br><span class="line">$ fastboot flash vendor vendor.new.img</span><br><span class="line">$ fastboot reboot</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://ccint3.com/2020/12/04/modify-android-q-for-sailfish/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -200,7 +433,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
+        <time title="修改时间：2021-08-12 17:50:53" itemprop="dateModified" datetime="2021-08-12T17:50:53+08:00">2021-08-12</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -448,7 +681,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
+        <time title="修改时间：2021-08-12 17:50:53" itemprop="dateModified" datetime="2021-08-12T17:50:53+08:00">2021-08-12</time>
       </span>
 
   
@@ -519,7 +752,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
+        <time title="修改时间：2021-08-12 17:50:53" itemprop="dateModified" datetime="2021-08-12T17:50:53+08:00">2021-08-12</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -651,7 +884,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
+        <time title="修改时间：2021-08-12 17:50:53" itemprop="dateModified" datetime="2021-08-12T17:50:53+08:00">2021-08-12</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -764,7 +997,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
+        <time title="修改时间：2021-08-12 17:50:53" itemprop="dateModified" datetime="2021-08-12T17:50:53+08:00">2021-08-12</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -952,7 +1185,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
+        <time title="修改时间：2021-08-12 17:50:53" itemprop="dateModified" datetime="2021-08-12T17:50:53+08:00">2021-08-12</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1044,7 +1277,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
+        <time title="修改时间：2021-08-12 17:50:53" itemprop="dateModified" datetime="2021-08-12T17:50:53+08:00">2021-08-12</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1189,7 +1422,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
+        <time title="修改时间：2021-08-12 17:50:53" itemprop="dateModified" datetime="2021-08-12T17:50:53+08:00">2021-08-12</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1283,7 +1516,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
+        <time title="修改时间：2021-08-12 17:50:53" itemprop="dateModified" datetime="2021-08-12T17:50:53+08:00">2021-08-12</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1357,206 +1590,6 @@
 <p>关闭防火墙</p>
 <p>至此，<strong>计算机A</strong>上开启了<code>18082</code>和<code>10082</code>两个端口，并且局域网内的其他计算机可以通过<code>局域网ip:10082</code>访问<strong>设备A</strong>的<code>8082</code>端口。并可以通过以下命令测试：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">telnet 127.0.0.1 18082 // 测试本机18082端口是否能正常向手机的8082端口发送数据</span><br><span class="line">telnet 127.0.0.1 10082 // 测试本机10082端口是否能正常向本机的18082端口发送数据</span><br><span class="line">telnet 192.168.14.30 18082 // 该命令将失败，因为无法通过局域网访问adb转发的端口</span><br><span class="line">telnet 192.168.14.30 10082 // 测试本机10082端口是否能正常向本机的18082端口发送数据</span><br></pre></td></tr></table></figure>
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://ccint3.com/2020/03/07/AndroidSkill/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="MakeThings Team">
-      <meta itemprop="description" content="皇上吃大饼，两面都蘸酱。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeThings Team'Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/03/07/AndroidSkill/" class="post-title-link" itemprop="url">Android Skill：小技巧</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-03-07 13:42:47" itemprop="dateCreated datePublished" datetime="2020-03-07T13:42:47+08:00">2020-03-07</time>
-    </span>
-      <span class="post-meta-item">
-        <span class="post-meta-item-icon">
-          <i class="far fa-calendar-check"></i>
-        </span>
-        <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-08-12 00:22:36" itemprop="dateModified" datetime="2021-08-12T00:22:36+08:00">2021-08-12</time>
-      </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/Skill/" itemprop="url" rel="index"><span itemprop="name">Skill</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="APK安装失败-INSTALL-FAILED-VERIFICATION-FAILURE"><a href="#APK安装失败-INSTALL-FAILED-VERIFICATION-FAILURE" class="headerlink" title="APK安装失败[INSTALL_FAILED_VERIFICATION_FAILURE]"></a>APK安装失败[INSTALL_FAILED_VERIFICATION_FAILURE]</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adb shell su -c settings put global package_verifier_enable 0</span><br><span class="line">adb shell su -c settings put global verifier_verify_adb_installs 0</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="不插拔USB恢复offline状态的设备"><a href="#不插拔USB恢复offline状态的设备" class="headerlink" title="不插拔USB恢复offline状态的设备"></a>不插拔USB恢复offline状态的设备</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb devices</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> adb -s serial reconnect</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="adb查看apk信息"><a href="#adb查看apk信息" class="headerlink" title="adb查看apk信息"></a>adb查看apk信息</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell pm list packages | grep aweme</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> adb shell dumpsys package com.ss.android.ugc.aweme</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="armeabi-v7a系统调用表"><a href="#armeabi-v7a系统调用表" class="headerlink" title="armeabi-v7a系统调用表"></a>armeabi-v7a系统调用表</h2><p><a target="_blank" rel="noopener" href="https://android.googlesource.com/platform/external/kernel-headers/+/refs/tags/android-6.0.1_r66/original/uapi/asm-arm/asm/unistd.h">https://android.googlesource.com/platform/external/kernel-headers/+/refs/tags/android-6.0.1_r66/original/uapi/asm-arm/asm/unistd.h</a></p>
-<h2 id="Android-Studio中指定ABI"><a href="#Android-Studio中指定ABI" class="headerlink" title="Android Studio中指定ABI"></a>Android Studio中指定ABI</h2><p>编辑<code>app -&gt; build.gradle</code></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">defaultConfig &#123;</span><br><span class="line">    ...</span><br><span class="line">    ndk &#123;</span><br><span class="line">    	abiFilters &#x27;armeabi-v7a&#x27;    //只生成armv7的so</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>相关ABI连接：</p>
-<p><a target="_blank" rel="noopener" href="https://google.github.io/android-gradle-dsl/current/com.android.build.gradle.internal.dsl.NdkOptions.html">https://google.github.io/android-gradle-dsl/current/com.android.build.gradle.internal.dsl.NdkOptions.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://developer.android.com/ndk/guides/abis.html#sa">https://developer.android.com/ndk/guides/abis.html#sa</a></p>
-<h2 id="调整屏幕亮度"><a href="#调整屏幕亮度" class="headerlink" title="调整屏幕亮度"></a>调整屏幕亮度</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell su</span></span><br><span class="line">// 屏幕最亮</span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">echo</span> 255 &gt; /sys/class/leds/lcd-backlight/brightness</span></span><br><span class="line"></span><br><span class="line">// 屏幕全黑，没有一点亮度；不影响screencap命令</span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">echo</span> 0 &gt; /sys/class/leds/lcd-backlight/brightness</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="截图"><a href="#截图" class="headerlink" title="截图"></a>截图</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell screencap -p /sdcard/01.png &amp; adb pull /sdcard/01.png</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-<h2 id="获取Application和Context"><a href="#获取Application和Context" class="headerlink" title="获取Application和Context"></a>获取Application和Context</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android.app.ActivityThread.currentApplication().getApplicationContext()</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="adb-logcat中搜索指定进程的日志正则表达式"><a href="#adb-logcat中搜索指定进程的日志正则表达式" class="headerlink" title="adb logcat中搜索指定进程的日志正则表达式"></a>adb logcat中搜索指定进程的日志正则表达式</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7679\s+\d+\s+\w</span><br></pre></td></tr></table></figure>
-
-<p>android logcat原理：<a target="_blank" rel="noopener" href="http://gityuan.com/2018/01/27/android-log/">http://gityuan.com/2018/01/27/android-log/</a></p>
-<h2 id="打开Url-Scheme协议链接"><a href="#打开Url-Scheme协议链接" class="headerlink" title="打开Url Scheme协议链接"></a>打开Url Scheme协议链接</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell am start -a android.intent.action.VIEW -d <span class="string">&quot;snssdk1128://user/profile/3733569708763603&quot;</span></span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="将用户证书修改为系统证书"><a href="#将用户证书修改为系统证书" class="headerlink" title="将用户证书修改为系统证书"></a>将用户证书修改为系统证书</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> su</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> mount -o remount,rw /system</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ls -al /data/misc/user/0/cacerts-added/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> mv /data/misc/user/0/cacerts-added/* /etc/security/cacerts/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chmod 644 /etc/security/cacerts/*</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chown root:root /etc/security/cacerts/*</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="查找端口占用情况"><a href="#查找端口占用情况" class="headerlink" title="查找端口占用情况"></a>查找端口占用情况</h2><ul>
-<li>通过端口号查找占用该端口的<code>uid</code></li>
-</ul>
-<p>例如需要查找<code>8081</code>端口，对应的16进制为：<code>0x1f91</code></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cat /proc/net/tcp6 | grep -i 1f91</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cat /proc/net/tcp | grep -i 1f91</span></span><br></pre></td></tr></table></figure>
-
-<p>结果如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">53: 00000000000000000000000000000000:1F91 00000000000000000000000000000000:0000 0A 00000000:00000000 00:00000000 00000000 10080        0 300399 1 0000000000000000 99 0 0 10 -1</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>通过<code>uid</code>查找该<code>uid</code>对应的进程号</li>
-</ul>
-<p>其中<code>10080</code>是<code>uid</code>； <code>UID(10080) - 10000 = 80 = u0_a80</code></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell su -c ps | grep u0_a80</span></span><br></pre></td></tr></table></figure>
-
-<p>结果如下：</p>
-<p>结果有多个进程都属于<code>u0_a80</code>用户的，那么<code>8081</code>端口就在其中一个进程中</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">u0_a80    9732  530   1828844 114996 SyS_epoll_ 00f734acb8 S com.ss.android.ugc.aweme:push</span><br><span class="line">u0_a80    9907  530   2520916 507228 SyS_epoll_ 00f734acb8 S com.ss.android.ugc.aweme</span><br><span class="line">u0_a80    10029 530   1831376 118660 SyS_epoll_ 00f734acb8 S com.ss.android.ugc.aweme:pushservice</span><br><span class="line">u0_a80    10956 530   1799376 102028 SyS_epoll_ 00f734acb8 S com.ss.android.ugc.aweme:downloader</span><br><span class="line">u0_a80    10968 530   1989384 173844 SyS_epoll_ 00f734acb8 S com.ss.android.ugc.aweme:miniapp0</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>根据进程id确定uid</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell su -c cat /proc/9907/cgroup</span></span><br></pre></td></tr></table></figure>
-
-<p>结果如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">3:cpuset:/foreground</span><br><span class="line">2:cpu:/</span><br><span class="line">1:cpuacct:/uid_10080/pid_9907</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="查找顶级Activity"><a href="#查找顶级Activity" class="headerlink" title="查找顶级Activity"></a>查找顶级Activity</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> adb shell dumpsys activity activities &gt; activity_activities.log</span></span><br></pre></td></tr></table></figure>
-
-<p>输出格式如下：其中每个<code>Hist</code>代表一个Activity</p>
-<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)</span><br><span class="line"></span><br><span class="line">Display #<span class="number">0</span> (activities from top to bottom):</span><br><span class="line"></span><br><span class="line">  Stack #<span class="number">4</span>:</span><br><span class="line"></span><br><span class="line">    Task id #<span class="number">144</span></span><br><span class="line"></span><br><span class="line">    * TaskRecord&#123;e98d78a #<span class="number">144</span> A=com<span class="variable">.tencent</span><span class="variable">.karaoke</span> U=<span class="number">0</span> sz=<span class="number">4</span>&#125;</span><br><span class="line">    ...</span><br><span class="line">      * Hist #<span class="number">3</span>: ActivityRecord&#123;<span class="number">6</span>da6fab u0 com<span class="variable">.tencent</span><span class="variable">.karaoke</span>/<span class="variable">.module</span><span class="variable">.detail</span><span class="variable">.ui</span><span class="variable">.GiftBillboardActivity</span> t144&#125;</span><br><span class="line">      ...</span><br><span class="line"></span><br><span class="line">      * Hist #<span class="number">2</span>: ActivityRecord&#123;cea57ec u0 com<span class="variable">.tencent</span><span class="variable">.karaoke</span>/<span class="variable">.module</span><span class="variable">.live</span><span class="variable">.ui</span><span class="variable">.LiveActivity</span> t144&#125;</span><br><span class="line">      ...</span><br><span class="line"></span><br><span class="line">      * Hist #<span class="number">1</span>: ActivityRecord&#123;<span class="number">840</span>f95 u0 com<span class="variable">.tencent</span><span class="variable">.karaoke</span>/<span class="variable">.module</span><span class="variable">.webview</span><span class="variable">.ui</span><span class="variable">.WebViewContainerActivity</span> t144&#125;</span><br><span class="line">      ...</span><br><span class="line"></span><br><span class="line">      * Hist #<span class="number">0</span>: ActivityRecord&#123;ea80b18 u0 com<span class="variable">.tencent</span><span class="variable">.karaoke</span>/<span class="variable">.module</span><span class="variable">.main</span><span class="variable">.ui</span><span class="variable">.MainTabActivity</span> t144&#125;</span><br><span class="line">      ...</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="更改adbd的监听端口"><a href="#更改adbd的监听端口" class="headerlink" title="更改adbd的监听端口"></a>更改adbd的监听端口</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ adb shell su</span><br><span class="line"><span class="comment"># setprop service.adb.tcp.port 5555</span></span><br><span class="line"><span class="comment"># stop adbd</span></span><br><span class="line"><span class="comment"># start adbd</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="启用-关闭开发者选项-USB-debugging"><a href="#启用-关闭开发者选项-USB-debugging" class="headerlink" title="启用/关闭开发者选项 - USB debugging"></a>启用/关闭开发者选项 - USB debugging</h2><p>启用：<code>setprop persist.sys.usb.config mtp,adb</code></p>
-<p>关闭：<code>setprop persist.sys.usb.config mtp</code><br>相关代码：</p>
-<p><code>https://developer.android.com/reference/android/provider/Settings.Global.html#ADB_ENABLED</code></p>
-<p><code>https://android.googlesource.com/platform/frameworks/base/+/android-4.4_r1.2/services/java/com/android/server/usb/UsbDeviceManager.java</code></p>
-<h2 id="调试启动APK"><a href="#调试启动APK" class="headerlink" title="调试启动APK"></a>调试启动APK</h2><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">:: Example:</span><br><span class="line">::   run_dbg.bat org.github.testsignal .MainActivity</span><br><span class="line">@<span class="built_in">ECHO</span> OFF</span><br><span class="line"><span class="keyword">CALL</span> :DeQuote %<span class="number">1</span></span><br><span class="line"><span class="built_in">SET</span> PACKAGE_NAME=<span class="variable">%return%</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CALL</span> :DeQuote %<span class="number">2</span></span><br><span class="line"><span class="built_in">SET</span> ACTIVITY_NAME=<span class="variable">%return%</span></span><br><span class="line"></span><br><span class="line">adb shell am <span class="built_in">start</span> -D <span class="variable">%PACKAGE_NAME%</span>/<span class="variable">%ACTIVITY_NAME%</span></span><br><span class="line">adb shell ps | <span class="built_in">FINDSTR</span> <span class="variable">%PACKAGE_NAME%</span></span><br><span class="line"><span class="built_in">ECHO</span> please input process id:</span><br><span class="line"><span class="built_in">SET</span> /P PID=</span><br><span class="line">adb forward tcp:<span class="number">12346</span> jdwp:<span class="variable">%PID%</span></span><br><span class="line">jdb -connect com.sun.jdi.SocketAttach:port=<span class="number">12346</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">PAUSE</span></span><br><span class="line"><span class="keyword">GOTO</span> :EOF</span><br><span class="line"></span><br><span class="line">:DeQuote</span><br><span class="line">  <span class="built_in">SET</span> return=%~<span class="number">1</span></span><br><span class="line">  <span class="keyword">GOTO</span> :EOF</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="TWRP模式下挂载指定分区"><a href="#TWRP模式下挂载指定分区" class="headerlink" title="TWRP模式下挂载指定分区"></a>TWRP模式下挂载指定分区</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adb shell</span><br><span class="line"><span class="comment"># make /test</span></span><br><span class="line"><span class="comment"># ls -la /dev/block/platform/soc.0/f9824900.sdhci/by-name/boot</span></span><br><span class="line"><span class="comment"># mount /dev/block/mmcblk0p43 /test</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Ubuntu-上使用-Android-SDK"><a href="#Ubuntu-上使用-Android-SDK" class="headerlink" title="Ubuntu 上使用 Android-SDK"></a>Ubuntu 上使用 Android-SDK</h2><ul>
-<li><p>安装<code>platforms</code>时需要注意引号</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@github:/opt/android_sdk<span class="comment"># ./tools/bin/sdkmanager --install &quot;platforms;android-23&quot;</span></span><br><span class="line">[=======================================] 100% Unzipping... android-6.0/source.p</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="logcat"><a href="#logcat" class="headerlink" title="logcat"></a>logcat</h2><p>android的Log.d系列日志是写在/dev/log_xxx文件中的；而/dev是挂载在tmpfs文件系统上，所以重启之后日志就消失了。参考：<code>system/core/liblog/logd_write.c</code>和<code>system/core/liblog/logd_write_kern.c</code></p>
-
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># adb shell su -c mount | grep /dev</span></span><br><span class="line">tmpfs /dev tmpfs rw,seclabel,nosuid,relatime,size=1424720k,nr_inodes=356180,mode=755 0 0</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Hide-all-methods-with-CMAKE"><a href="#Hide-all-methods-with-CMAKE" class="headerlink" title="Hide all methods with CMAKE"></a>Hide all methods with CMAKE</h2><p>在 CMAKE 中设置隐藏所有方法(不显示他们的符号)；</p>
-<p>Hide all methods without add “__attribute__(visibility(“default”))” for everyone of them:</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set_target_properties</span>(YOUR_TARGET_NAME PROPERTIES CXX_VISIBILITY_PRESET hidden)</span><br><span class="line"><span class="keyword">set_target_properties</span>(YOUR_TARGET_NAME PROPERTIES C_VISIBILITY_PRESET hidden)</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="Fucking-knack-of-use-ollvm-edition-clang-to-compile-so-on-Android-Studio"><a href="#Fucking-knack-of-use-ollvm-edition-clang-to-compile-so-on-Android-Studio" class="headerlink" title="Fucking knack of use ollvm edition clang to compile so on Android Studio"></a>Fucking knack of use ollvm edition clang to compile so on Android Studio</h2><p>在 Android Studio 中使用 ollvm 版本的 clang 编译 so；</p>
-<p>​    As you know, if you just overwrite the compiler executable file with ollvm edition, then you will get “‘xxx.h’ file not found” error, actually I am not understand this error explicitly, because the file exactly is there, and it will perform like you want when execute that compile command on shell, so here is my approach to avoid that:</p>
-<p>​    Open “YOUT_PROJECT_PATH\app.externalNativeBuild\cmake\debug\TARGET_ABI\rules.ninja”, find the line of “rule C_COMPILER__TARGET”(TARGET mean the target name you specified by “add_library” on “CMakeLists.txt”), and you will find the path of clang executable file under it, modify it with your ollvm edition clang, then build your project as normal, you will get the ollvm compiled file.</p>
-<p>​    如果简单的使用 ollvm 版本的 clang.exe 等可执行文件替换掉原版 ndk toolchain 中的 exe，那么将会报一些头文件查找不到的错误，网上说的原因似乎是不同版本的 clang 将会使用的头文件有差异，然而如果在控制台中直接使用 ollvm 版本 clang 去手动执行编译命令，是可以正常编译成功得到 .o 文件的，以下是我避免该坑的方法：</p>
-<p>​    打开 “YOUT_PROJECT_PATH\app.externalNativeBuild\cmake\debug\TARGET_ABI\rules.ninja”，找到 “rule C_COMPILER__TARGET” 这一行(TARGET 指你在 CMakeLists.txt 中使用 add_library 指定的库名)，然后你会在下面几行找到编译使用的 clang 路径，把它替换为你 ollvm 版本 clang 的路径，然后正常编译即可得到你想要的 so。</p>
-
       
     </div>
 
